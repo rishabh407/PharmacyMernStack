@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-4 gap-8">
         {/* Company Info */}
         <div>
-          <h2 className="text-xl font-bold mb-4">💊 MedicoPharma</h2>
+          <h2 className="text-xl font-bold mb-4">💊 Medicity</h2>
           <p className="text-sm text-blue-200">
             Your trusted online pharmacy. Delivering genuine medicines and
             healthcare products at your doorstep.
@@ -72,9 +72,9 @@ const Footer = () => {
         {/* Contact Info */}
         <div>
           <h3 className="font-semibold mb-4">Contact</h3>
-          <p className="text-sm text-blue-200">📍 New Delhi, India</p>
+          <p className="text-sm text-blue-200">📍 Amritsar, India</p>
           <p className="text-sm text-blue-200">📞 +91 98765 43210</p>
-          <p className="text-sm text-blue-200">✉ support@medicopharma.com</p>
+          <p className="text-sm text-blue-200">✉ support@medicity.health</p>
 
           <div className="flex gap-4 mt-4">
             <Facebook
@@ -92,7 +92,7 @@ const Footer = () => {
 
       {/* Bottom Bar */}
       <div className="border-t border-blue-800 text-center py-4 text-sm text-blue-300">
-        © {new Date().getFullYear()} MedicoPharma. All rights reserved.
+        © {new Date().getFullYear()} Medicity. All rights reserved.
       </div>
     </footer>
   );

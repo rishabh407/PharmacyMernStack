@@ -2,10 +2,17 @@ import React, { useEffect, useState } from "react";
 import { Trash2 } from "lucide-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
 
 const CartPage = () => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
+
+  const handleNavigate = () => {
+    navigate("/products");
+  };
 
   // Fetch cart from backend
   const fetchCart = async () => {
@@ -94,14 +101,15 @@ const CartPage = () => {
               {cart.map((item) => (
                 <div
                   key={item._id}
-                  className="bg-white rounded-2xl border border-sky-100 shadow-sm p-4 flex items-center gap-4"
+                  className="bg-white rounded-2xl border border-sky-100 shadow-sm p-4 flex items-center gap-4 "
                 >
                   {/* IMAGE */}
                   <div className="w-20 h-20 flex-shrink-0">
                     <img
                       src={`http://localhost:4000${item.product.image}`}
                       alt={item.product.name}
-                      className="w-full h-full object-contain rounded-xl"
+                      onClick={handleNavigate}
+                      className="w-full h-full object-contain rounded-xl cursor-pointer"
                       onError={(e) =>
                         (e.target.src =
                           "https://via.placeholder.com/100?text=No+Image")

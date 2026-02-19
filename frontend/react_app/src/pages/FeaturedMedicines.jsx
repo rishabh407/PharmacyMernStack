@@ -3,12 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, MoveLeftIcon, MoveRightIcon } from "lucide-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
+import { useCart } from "../context/CartContext";
 
 const FeaturedMedicines = () => {
   const [products, setProducts] = useState([]);
   const [adding, setAdding] = useState(null);
+
   const scrollRef = useRef(null);
   const navigate = useNavigate();
+  const { incrementCart } = useCart();
 
   const fetchProducts = async () => {
     try {
@@ -46,6 +49,7 @@ const FeaturedMedicines = () => {
       });
 
       toast.success("Added to cart!");
+      incrementCart(1);
       navigate("/cart"); // optional: remove if you want user to stay on homepage
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to add to cart");

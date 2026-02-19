@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
+import FullMenu from "./FullMenu";
+import { useCart } from "../context/CartContext";
 
 const SpecificProductPage = () => {
   const { id } = useParams();
@@ -13,6 +15,7 @@ const SpecificProductPage = () => {
   const [quantity, setQuantity] = useState(1);
 
   const navigate = useNavigate();
+  const { incrementCart } = useCart();
 
   // 🔹 Fetch Product
   useEffect(() => {
@@ -55,6 +58,7 @@ const SpecificProductPage = () => {
       });
 
       toast.success("Added to cart!");
+      incrementCart(1);
       navigate("/cart");
     } catch (error) {
       toast.error("Failed to add to cart");
@@ -194,6 +198,7 @@ const SpecificProductPage = () => {
           </div>
         </div>
       </div>
+      <FullMenu />
     </section>
   );
 };

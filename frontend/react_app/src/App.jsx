@@ -48,15 +48,15 @@ const App = () => {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route
-  path="/categories/:category"
-  element={<CategoryProductsPage />}
-/> 
-<Route path="/profile" element={<ProfilePage />} />
-<Route path="/my-orders" element={<MyOrdersPage />} />
+              path="/categories/:category"
+              element={<CategoryProductsPage />}
+            />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/my-orders" element={<MyOrdersPage />} />
 
             <Route path="/login" element={<LoginPage />} />
-<Route path="/account/dashboard" element={<UserDashboard />} />
-<Route path="/account/addresses" element={<AddressPage />} />
+            <Route path="/account/dashboard" element={<UserDashboard />} />
+            <Route path="/account/addresses" element={<AddressPage />} />
             <Route path="/products/:id" element={<SpecificProductPage />} />
           </Route>
         </Routes>

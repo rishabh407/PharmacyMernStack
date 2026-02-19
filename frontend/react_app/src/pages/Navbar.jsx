@@ -294,30 +294,16 @@ import {
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axios";
 import toast from "react-hot-toast";
+import { useCart } from "../context/CartContext";
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
   const dropdownRef = useRef(null);
 
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
-
-  /* ---------------- FETCH CART COUNT ---------------- */
-  const fetchCartCount = async () => {
-    if (!user) return;
-    try {
-      const res = await api.get("/cart");
-      const count = res.data.items.reduce(
-        (sum, item) => sum + item.quantity,
-        0
-      );
-      setCartCount(count);
-    } catch (error) {
-      console.error("Failed to fetch cart count");
-    }
-  };
+  const { cartCount, fetchCartCount } = useCart();
 
   useEffect(() => {
     fetchCartCount();
@@ -334,7 +320,6 @@ const Navbar = () => {
     try {
       await api.post("/auth/logout");
       setUser(null);
-      setCartCount(0);
       toast.success("Logged out successfully");
       navigate("/");
     } catch {
@@ -350,14 +335,12 @@ const Navbar = () => {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
     <nav className="sticky top-0 z-50 bg-gradient-to-r from-sky-700 to-blue-800 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
-
         {/* Logo */}
         <Link
           to="/"
@@ -370,10 +353,18 @@ const Navbar = () => {
 
         {/* ---------------- DESKTOP MENU ---------------- */}
         <div className="hidden md:flex items-center gap-8">
-          <Link to="/" className="hover:text-blue-200">Home</Link>
-          <Link to="/products" className="hover:text-blue-200">Medicines</Link>
-          <Link to="/categories" className="hover:text-blue-200">Categories</Link>
-          <Link to="/about" className="hover:text-blue-200">About</Link>
+          <Link to="/" className="hover:text-blue-200">
+            Home
+          </Link>
+          <Link to="/products" className="hover:text-blue-200">
+            Medicines
+          </Link>
+          <Link to="/categories" className="hover:text-blue-200">
+            Categories
+          </Link>
+          <Link to="/about" className="hover:text-blue-200">
+            About
+          </Link>
 
           <button
             onClick={goToProducts}
@@ -409,13 +400,33 @@ const Navbar = () => {
 
               {profileOpen && (
                 <div className="absolute right-0 mt-3 w-60 bg-white text-gray-800 rounded-2xl shadow-xl overflow-hidden">
-                  <DropdownLink to="/account/dashboard" icon={<LayoutDashboard size={16} />} label="Dashboard" />
-                  <DropdownLink to="/profile" icon={<User size={16} />} label="My Profile" />
-                  <DropdownLink to="/account/addresses" icon={<MapPin size={16} />} label="Addresses" />
-                  <DropdownLink to="/my-orders" icon={<Package size={16} />} label="My Orders" />
+                  <DropdownLink
+                    to="/account/dashboard"
+                    icon={<LayoutDashboard size={16} />}
+                    label="Dashboard"
+                  />
+                  <DropdownLink
+                    to="/profile"
+                    icon={<User size={16} />}
+                    label="My Profile"
+                  />
+                  <DropdownLink
+                    to="/account/addresses"
+                    icon={<MapPin size={16} />}
+                    label="Addresses"
+                  />
+                  <DropdownLink
+                    to="/my-orders"
+                    icon={<Package size={16} />}
+                    label="My Orders"
+                  />
 
                   {user.role === "admin" && (
-                    <DropdownLink to="/admin/dashboard" icon={<LayoutDashboard size={16} />} label="Admin Dashboard" />
+                    <DropdownLink
+                      to="/admin/dashboard"
+                      icon={<LayoutDashboard size={16} />}
+                      label="Admin Dashboard"
+                    />
                   )}
 
                   <button
@@ -431,7 +442,10 @@ const Navbar = () => {
           ) : (
             <>
               <Link to="/login">Login</Link>
-              <Link to="/signup" className="bg-white text-blue-700 px-4 py-2 rounded-xl font-semibold">
+              <Link
+                to="/signup"
+                className="bg-white text-blue-700 px-4 py-2 rounded-xl font-semibold"
+              >
                 Register
               </Link>
             </>
@@ -439,7 +453,10 @@ const Navbar = () => {
         </div>
 
         {/* MOBILE TOGGLE */}
-        <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
+        <button
+          className="md:hidden"
+          onClick={() => setMobileOpen(!mobileOpen)}
+        >
           {mobileOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
@@ -448,18 +465,46 @@ const Navbar = () => {
       {mobileOpen && (
         <div className="md:hidden bg-blue-900 px-4 py-6 space-y-3">
           <MobileLink to="/" label="Home" setMobileOpen={setMobileOpen} />
-          <MobileLink to="/products" label="Medicines" setMobileOpen={setMobileOpen} />
-          <MobileLink to="/categories" label="Categories" setMobileOpen={setMobileOpen} />
+          <MobileLink
+            to="/products"
+            label="Medicines"
+            setMobileOpen={setMobileOpen}
+          />
+          <MobileLink
+            to="/categories"
+            label="Categories"
+            setMobileOpen={setMobileOpen}
+          />
           <MobileLink to="/about" label="About" setMobileOpen={setMobileOpen} />
-          <MobileLink to="/cart" label={`Cart (${cartCount})`} setMobileOpen={setMobileOpen} />
+          <MobileLink
+            to="/cart"
+            label={`Cart (${cartCount})`}
+            setMobileOpen={setMobileOpen}
+          />
 
           {user && (
             <>
               <div className="border-t border-blue-700 my-2" />
-              <MobileLink to="/account/dashboard" label="Dashboard" setMobileOpen={setMobileOpen} />
-              <MobileLink to="/profile" label="My Profile" setMobileOpen={setMobileOpen} />
-              <MobileLink to="/account/addresses" label="Addresses" setMobileOpen={setMobileOpen} />
-              <MobileLink to="/my-orders" label="My Orders" setMobileOpen={setMobileOpen} />
+              <MobileLink
+                to="/account/dashboard"
+                label="Dashboard"
+                setMobileOpen={setMobileOpen}
+              />
+              <MobileLink
+                to="/profile"
+                label="My Profile"
+                setMobileOpen={setMobileOpen}
+              />
+              <MobileLink
+                to="/account/addresses"
+                label="Addresses"
+                setMobileOpen={setMobileOpen}
+              />
+              <MobileLink
+                to="/my-orders"
+                label="My Orders"
+                setMobileOpen={setMobileOpen}
+              />
               <button
                 onClick={handleLogout}
                 className="w-full text-left px-4 py-3 rounded-xl text-red-300 hover:bg-red-900/30"

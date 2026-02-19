@@ -3,6 +3,7 @@ import api from "../api/axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
+import { useCart } from "../context/CartContext";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -11,6 +12,7 @@ const ProductsPage = () => {
   const [addingId, setAddingId] = useState(null);
 
   const navigate = useNavigate();
+  const { incrementCart } = useCart();
 
   const handleNavigate = (id) => {
     navigate(`/products/${id}`);
@@ -38,6 +40,7 @@ const ProductsPage = () => {
       await api.post("/cart/add", { productId, quantity: 1 });
 
       toast.success("Added to cart 🛒");
+      incrementCart(1);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to add to cart");
     } finally {
@@ -51,13 +54,12 @@ const ProductsPage = () => {
 
   // 🔍 Filter Logic
   const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(search.toLowerCase())
+    product.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
     <div className="min-h-screen bg-sky-50 py-10 px-4">
       <div className="max-w-6xl mx-auto">
-
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-sky-900">Medicines</h1>

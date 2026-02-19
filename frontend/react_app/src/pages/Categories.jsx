@@ -6,24 +6,28 @@ const Categories = () => {
   const categories = [
     {
       name: "Pain Relief",
+      slug: "pain-relief",
       color: "bg-sky-50",
       hover: "hover:bg-sky-100",
       icon: "💊",
     },
     {
-      name: "Diabetes",
+      name: "Diabetes Care",
+      slug: "diabetes-care",
       color: "bg-emerald-50",
       hover: "hover:bg-emerald-100",
       icon: "🩸",
     },
     {
-      name: "Heart Care",
+      name: "Health Care",
+      slug: "health-care",
       color: "bg-rose-50",
       hover: "hover:bg-rose-100",
       icon: "❤️",
     },
     {
-      name: "Vitamins",
+      name: "Vitamins And Minerals",
+      slug: "vitamins-and-minerals",
       color: "bg-yellow-50",
       hover: "hover:bg-yellow-100",
       icon: "🍊",
@@ -43,6 +47,7 @@ const Categories = () => {
               Find medicines by your health needs
             </p>
           </div>
+
           <Link
             to="/categories"
             className="text-sm font-semibold text-sky-700 hover:text-sky-900 transition"
@@ -53,13 +58,13 @@ const Categories = () => {
 
         {/* Category Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {categories.map((cat, idx) => (
+          {categories.map((cat) => (
             <Link
-              key={idx}
-              to={`/categories/${cat.name.toLowerCase().replace(" ", "-")}`}
-              className={`group rounded-3xl ${cat.color} ${cat.hover} 
-              p-6 shadow-sm hover:shadow-lg hover:-translate-y-2 
-              transition-all duration-300 flex flex-col justify-between`}
+              key={cat.slug}
+              to={`/categories/${cat.slug}`}
+              className={`group rounded-3xl ${cat.color} ${cat.hover}
+                p-6 shadow-sm hover:shadow-lg hover:-translate-y-2
+                transition-all duration-300 flex flex-col justify-between`}
             >
               <div className="text-4xl mb-4 group-hover:scale-110 transition">
                 {cat.icon}

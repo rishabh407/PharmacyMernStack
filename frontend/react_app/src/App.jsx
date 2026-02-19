@@ -11,6 +11,7 @@ import PrescriptionUploadPage from "./pages/PrescriptionUploadPage";
 import CartPage from "./pages/CartPage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
+import SpecificProductPage from "./pages/SpecificProductPage";
 
 const App = () => {
   return (
@@ -42,6 +43,8 @@ const App = () => {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
+
+            <Route path="/products/:id" element={<SpecificProductPage />} />
           </Route>
         </Routes>
       </Router>

@@ -1,98 +1,188 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Star, ShoppingCart } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ShoppingCart, MoveLeftIcon, MoveRightIcon } from "lucide-react";
+import api from "../api/axios";
+import toast from "react-hot-toast";
 
 const FeaturedMedicines = () => {
-  const featured = [
-    { id: 1, name: "Paracetamol 650mg", price: 120, tag: "Pain Relief" },
-    { id: 2, name: "Aspirin 75mg", price: 145, tag: "Heart Care" },
-    { id: 3, name: "Vitamin C 500mg", price: 199, tag: "Immunity" },
-  ];
+  const [products, setProducts] = useState([]);
+  const [addingId, setAddingId] = useState(null);
+
+  const scrollRef = useRef(null);
+  const navigate = useNavigate();
+
+  const handleNavigate = (id) => {
+    navigate(`/products/${id}`);
+  };
+
+  const scrollLeft = () => {
+    scrollRef.current.scrollBy({
+      left: -300,
+      behavior: "smooth",
+    });
+  };
+
+  const scrollRight = () => {
+    scrollRef.current.scrollBy({
+      left: 300,
+      behavior: "smooth",
+    });
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const res = await api.get("/products");
+
+      // ✅ Fix typo + show only 3 featured items
+      setProducts(res.data.data || []);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to fetch medicines");
+    }
+  };
+
+  // ✅ Add To Cart
+  const handleAddToCart = async (productId) => {
+    try {
+      setAddingId(productId);
+      await api.post("/cart/add", { productId });
+      toast.success("Added to cart 🛒");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to add to cart");
+    } finally {
+      setAddingId(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   return (
-    <section className="bg-gradient-to-b from-white to-sky-50 py-16">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-10">
-          <div>
-            <h2 className="text-3xl font-bold text-sky-900">
-              Featured Medicines 💊
-            </h2>
-            <p className="text-sky-600 text-sm mt-1">
-              Top recommended health essentials
-            </p>
-          </div>
-          <Link
-            to="/products"
-            className="text-sm font-semibold text-sky-700 hover:text-sky-900 transition"
-          >
-            View all →
-          </Link>
-        </div>
-
-        {/* Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-          {featured.map((item) => (
-            <div
-              key={item.id}
-              className="group bg-white rounded-3xl border border-sky-100 shadow-md p-6 
-              hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
-            >
-              {/* Tag Badge */}
-              <span
-                className="inline-block mb-4 text-xs font-semibold px-3 py-1 
-              rounded-full bg-emerald-100 text-emerald-700"
-              >
-                {item.tag}
-              </span>
-
-              {/* Image */}
-              <div className="flex items-center justify-center mb-5">
-                <div
-                  className="w-16 h-16 rounded-2xl bg-sky-50 
-                flex items-center justify-center text-4xl 
-                group-hover:scale-110 transition"
-                >
-                  💊
-                </div>
-              </div>
-
-              {/* Name */}
-              <h3 className="text-base font-semibold text-sky-900 mb-2">
-                {item.name}
-              </h3>
-
-              {/* Rating */}
-              <div className="flex items-center gap-1 text-amber-400 mb-3">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={16} fill="#fbbf24" stroke="none" />
-                ))}
-                <span className="text-xs text-sky-500 ml-2">(120 reviews)</span>
-              </div>
-
-              {/* Price + Button */}
-              <div className="flex items-center justify-between mt-4">
-                <p className="text-lg font-bold text-sky-900">
-                  ₹{item.price}
-                  <span className="text-xs font-normal text-sky-500">
-                    /strip
-                  </span>
-                </p>
-
-                <button
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl 
-                  bg-sky-600 text-white text-sm font-semibold 
-                  hover:bg-sky-700 transition shadow-md"
-                >
-                  <ShoppingCart size={16} />
-                  Add
-                </button>
-              </div>
+    <>
+      <section className="bg-gradient-to-b from-sky-50 via-white to-sky-50 py-12 sm:py-16 lg:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 sm:mb-12">
+            <div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-sky-900 tracking-tight">
+                Featured Medicines
+              </h2>
+              <p className="text-sky-600 text-sm mt-2">
+                Top recommended health essentials
+              </p>
             </div>
-          ))}
+
+            <Link
+              to="/products"
+              className="text-sm font-semibold text-sky-700 hover:text-sky-900 transition underline underline-offset-4"
+            >
+              View all →
+            </Link>
+          </div>
+
+          {/* Scroll Wrapper */}
+          <div className="relative">
+            {/* Gradient Fade (Hidden on mobile) */}
+            <div className="hidden sm:block absolute left-0 top-0 h-full w-16 bg-gradient-to-r from-sky-50 to-transparent z-10 pointer-events-none" />
+            <div className="hidden sm:block absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-sky-50 to-transparent z-10 pointer-events-none" />
+
+            {/* Left Button (Hidden on mobile) */}
+            <button
+              onClick={scrollLeft}
+              className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 z-20 
+        bg-white/90 backdrop-blur-md shadow-xl rounded-full w-10 h-10 lg:w-11 lg:h-11
+        items-center justify-center hover:scale-110 hover:bg-sky-100 transition"
+            >
+              <MoveLeftIcon size={18} />
+            </button>
+
+            {/* Scrollable Container */}
+            <div
+              ref={scrollRef}
+              className="flex gap-4 sm:gap-6 lg:gap-8 overflow-x-auto scroll-smooth pb-6 no-scrollbar"
+            >
+              {products.map((item) => (
+                <div
+                  key={item._id}
+                  onClick={() => handleNavigate(item._id)}
+                  className="cursor-pointer min-w-[220px] sm:min-w-[250px] lg:min-w-[280px] max-w-[220px] sm:max-w-[250px] lg:max-w-[280px] bg-white rounded-3xl border border-sky-100 shadow-md p-4 sm:p-5 lg:p-6 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 flex-shrink-0 group"
+                >
+                  {/* Badge */}
+                  <span
+                    className="inline-block mb-4 text-[10px] sm:text-xs font-semibold px-3 py-1.5 
+              rounded-full bg-gradient-to-r from-emerald-400 to-sky-500 text-white shadow-sm"
+                  >
+                    {item.specialCategory}
+                  </span>
+
+                  {/* Image */}
+                  <div className="flex items-center justify-center mb-4 sm:mb-6">
+                    <div
+                      className="
+                w-24 h-24 
+                sm:w-28 sm:h-28 
+                lg:w-36 lg:h-36 
+                rounded-3xl bg-sky-50 
+                overflow-hidden flex items-center justify-center 
+                group-hover:scale-105 transition duration-500
+              "
+                    >
+                      <img
+                        src={`http://localhost:4000${item.image}`}
+                        alt={item.name}
+                        className="w-full h-full object-contain p-3"
+                        onError={(e) => {
+                          e.target.src =
+                            "https://via.placeholder.com/200?text=No+Image";
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Name */}
+                  <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-sky-900 mb-2 line-clamp-2">
+                    {item.name}
+                  </h3>
+
+                  {/* Price */}
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-sky-900 mb-4">
+                    ₹{item.price}
+                  </p>
+
+                  {/* Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddToCart(item._id);
+                    }}
+                    disabled={addingId === item._id}
+                    className={`w-full flex items-center justify-center gap-2 py-2 sm:py-2.5 lg:py-3 rounded-2xl 
+              text-xs sm:text-sm font-semibold transition-all duration-300 shadow-md ${
+                addingId === item._id
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-sky-600 to-sky-500 text-white hover:from-sky-700 hover:to-sky-600"
+              }`}
+                  >
+                    <ShoppingCart size={16} />
+                    {addingId === item._id ? "Adding..." : "Add to Cart"}
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Right Button (Hidden on mobile) */}
+            <button
+              onClick={scrollRight}
+              className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 z-20 
+        bg-white/90 backdrop-blur-md shadow-xl rounded-full w-10 h-10 lg:w-11 lg:h-11
+        items-center justify-center hover:scale-110 hover:bg-sky-100 transition"
+            >
+              <MoveRightIcon size={18} />
+            </button>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };
 

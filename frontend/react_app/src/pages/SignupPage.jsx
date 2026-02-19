@@ -35,7 +35,6 @@ const SignupPage = () => {
 
       return;
     }
-
     try {
       await api.post("/auth/register", formData);
       toast.success("Account created successfully");

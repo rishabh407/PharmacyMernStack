@@ -99,3 +99,45 @@ export const getSpecificProduct = async (req, res) => {
     });
   }
 };
+
+
+export const getProductsByCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+
+    // 🔁 Slug → DB category mapping
+    const categoryMap = {
+      "pain-relief": "Pain Relief",
+      "diabetes-care": "Diabetes Care",
+      "vitamins-and-minerals": "Vitamins & Minerals",
+      "health-care": "Health Care",
+    };
+
+    const dbCategory = categoryMap[category];
+
+    if (!dbCategory) {
+      return res.status(404).json({
+        success: false,
+        message: "Category not found",
+      });
+    }
+
+    const products = await Product.find({
+      specialCategory: dbCategory,
+      isActive: true,
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: products.length,
+      data: products,
+    });
+  } catch (error) {
+    console.error("Category Products Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch category products",
+    });
+  }
+};
+

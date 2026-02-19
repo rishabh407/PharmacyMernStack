@@ -4,11 +4,13 @@ import { ShoppingCart, Menu, X, Search, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
 
+  const navigate = useNavigate();
   const { user, setUser } = useAuth();
 
   // Fetch cart from backend
@@ -30,27 +32,29 @@ const Navbar = () => {
     fetchCartCount();
   }, [user]); // Refetch when user logs in/out
 
+  const goToProducts = () => {
+    navigate("/products");
+    setIsOpen(false);
+  };
+
   const handleLogout = async () => {
     try {
       await api.post("/auth/logout");
       setUser(null);
       setCartCount(0); // Clear cart on logout
       toast.success("Logged out successfully");
-    } catch (error) {
+    } catch {
       toast.error("Logout failed");
     }
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-gradient-to-r from-sky-700 to-blue-800 backdrop-blur-md shadow-lg text-white">
+    <nav className="sticky top-0 z-50 bg-gradient-to-r from-sky-700 to-blue-800 shadow-lg text-white">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
-        <Link
-          to="/"
-          className="text-2xl font-bold tracking-wide flex items-center gap-2"
-        >
+        <Link to="/" className="text-2xl font-bold flex items-center gap-2">
           <span className="text-3xl">💊</span>
-          <span>Medicity</span>
+          Medicity
         </Link>
 
         {/* Desktop Menu */}
@@ -68,18 +72,14 @@ const Navbar = () => {
             About
           </Link>
 
-          {/* Search */}
-          <div className="relative">
-            <Search
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-sky-600"
-            />
-            <input
-              type="text"
-              placeholder="Search medicines..."
-              className="pl-9 pr-4 py-2 rounded-xl text-white text-sm outline-none focus:ring-2 focus:ring-sky-400 shadow-md"
-            />
-          </div>
+          {/* 🔍 Search Button (redirect only) */}
+          <button
+            onClick={goToProducts}
+            className="flex items-center gap-2 bg-white text-sky-700 px-4 py-2 rounded-xl font-semibold hover:bg-sky-100 transition shadow-md"
+          >
+            <Search size={16} />
+            Search medicines
+          </button>
 
           {/* Cart */}
           <Link
@@ -152,34 +152,63 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-blue-900 px-6 pb-6 pt-4 space-y-4">
-          <input
-            type="text"
-            placeholder="Search medicines..."
-            className="w-full px-4 py-2 rounded-xl text-black text-sm outline-none"
-          />
+          {/* 🔍 Search */}
+          <button
+            onClick={goToProducts}
+            className="w-full flex items-center gap-2 bg-white text-sky-700 px-4 py-2 rounded-xl font-semibold"
+          >
+            <Search size={16} />
+            Search medicines
+          </button>
 
-          <Link to="/" className="block hover:text-blue-200">
+          <Link
+            to="/"
+            onClick={() => setIsOpen(false)}
+            className="block hover:text-blue-200"
+          >
             Home
           </Link>
-          <Link to="/products" className="block hover:text-blue-200">
+
+          <Link
+            to="/products"
+            onClick={() => setIsOpen(false)}
+            className="block hover:text-blue-200"
+          >
             Medicines
           </Link>
-          <Link to="/categories" className="block hover:text-blue-200">
+
+          <Link
+            to="/categories"
+            onClick={() => setIsOpen(false)}
+            className="block hover:text-blue-200"
+          >
             Categories
           </Link>
-          <Link to="/about" className="block hover:text-blue-200">
+
+          <Link
+            to="/about"
+            onClick={() => setIsOpen(false)}
+            className="block hover:text-blue-200"
+          >
             About
           </Link>
-          <Link to="/cart" className="block hover:text-blue-200">
+
+          <Link
+            to="/cart"
+            onClick={() => setIsOpen(false)}
+            className="block hover:text-blue-200"
+          >
             Cart
           </Link>
+
           {user ? (
             <>
-              <div className="block font-semibold">{user.name}</div>
+              <div className="font-semibold">{user.name}</div>
 
               {user.role === "admin" && (
                 <Link
                   to="/admin/dashboard"
+                  onClick={() => setIsOpen(false)}
                   className="block hover:text-blue-200"
                 >
                   Admin Panel
@@ -187,7 +216,10 @@ const Navbar = () => {
               )}
 
               <button
-                onClick={handleLogout}
+                onClick={() => {
+                  handleLogout();
+                  setIsOpen(false);
+                }}
                 className="block text-left w-full hover:text-blue-200"
               >
                 Logout
@@ -195,10 +227,19 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link to="/login" className="block hover:text-blue-200">
+              <Link
+                to="/login"
+                onClick={() => setIsOpen(false)}
+                className="block hover:text-blue-200"
+              >
                 Login
               </Link>
-              <Link to="/signup" className="block hover:text-blue-200">
+
+              <Link
+                to="/signup"
+                onClick={() => setIsOpen(false)}
+                className="block hover:text-blue-200"
+              >
                 Register
               </Link>
             </>

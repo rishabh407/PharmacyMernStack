@@ -6,6 +6,7 @@ import { useNavigate } from "react-router";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [addingId, setAddingId] = useState(null);
 
@@ -48,34 +49,50 @@ const ProductsPage = () => {
     fetchProducts();
   }, []);
 
+  // 🔍 Filter Logic
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-sky-50 py-10 px-4">
       <div className="max-w-6xl mx-auto">
+
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
-          <div>
-            <h1 className="text-3xl font-bold text-sky-900">Medicines</h1>
-            <p className="text-sky-700 mt-1">
-              Browse trusted, genuine medicines and healthcare products.
-            </p>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-sky-900">Medicines</h1>
+          <p className="text-sky-700 mt-1">
+            Browse trusted, genuine medicines and healthcare products.
+          </p>
         </div>
 
-        {/* Loading State */}
+        {/* 🔍 Search Input */}
+        <input
+          type="text"
+          placeholder="Search medicines..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full mb-8 px-5 py-3 rounded-2xl border border-sky-200 outline-none focus:ring-2 focus:ring-sky-400"
+          autoFocus
+        />
+
+        {/* Loading */}
         {loading ? (
           <p className="text-center text-sky-700 font-medium">
             Loading medicines...
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {products.length === 0 ? (
-              <p className="text-sky-700">No medicines found.</p>
+            {filteredProducts.length === 0 ? (
+              <p className="text-sky-700 col-span-full text-center">
+                No medicines found.
+              </p>
             ) : (
-              products.map((product) => (
+              filteredProducts.map((product) => (
                 <div
                   key={product._id}
                   onClick={() => handleNavigate(product._id)}
-                  className="bg-white rounded-3xl shadow-md border border-sky-100 p-5 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
+                  className="bg-white rounded-3xl shadow-md border border-sky-100 p-5 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer"
                 >
                   {/* Image */}
                   <div className="mb-4 w-full aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100 flex items-center justify-center">

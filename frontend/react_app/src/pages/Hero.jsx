@@ -1,8 +1,10 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Truck, ShieldCheck, Headset, ArrowRight } from "lucide-react";
 
 const Hero = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="relative bg-gradient-to-br from-sky-50 via-white to-emerald-50 overflow-hidden">
       {/* Background Glow */}
@@ -27,14 +29,17 @@ const Hero = () => {
             delivered safely to your doorstep.
           </p>
 
-          {/* Search + Buttons */}
+          {/* 🔍 Search Trigger + Button */}
           <div className="mt-8 flex flex-col sm:flex-row gap-4">
-            <input
-              type="text"
-              placeholder="Search medicines, brands..."
-              className="flex-1 px-5 py-4 rounded-2xl border border-sky-200 bg-white shadow-md focus:outline-none focus:ring-2 focus:ring-sky-400 text-sm"
-            />
+            {/* Search Trigger */}
+            <button
+              onClick={() => navigate("/products")}
+              className="flex-1 text-left px-5 py-4 rounded-2xl border border-sky-200 bg-white shadow-md hover:ring-2 hover:ring-sky-400 text-sm text-gray-500 transition"
+            >
+              Search medicines, brands...
+            </button>
 
+            {/* Browse Button */}
             <Link
               to="/products"
               className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-sky-700 text-white font-semibold shadow-lg hover:bg-sky-800 transition"
@@ -44,7 +49,7 @@ const Hero = () => {
           </div>
 
           {/* Trust Badges */}
-          <div className="mt-10 grid grid-cols-3 gap-6 text-sm">
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm">
             <div className="flex items-center gap-3">
               <div className="p-3 rounded-xl bg-sky-100 text-sky-700">
                 <Truck size={20} />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ShoppingCart, Menu, X, Search, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -7,21 +7,39 @@ import toast from "react-hot-toast";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
 
   const { user, setUser } = useAuth();
+
+  // Fetch cart from backend
+  const fetchCartCount = async () => {
+    if (!user) return; // Only fetch if logged in
+    try {
+      const res = await api.get("/cart"); // GET /cart
+      const count = res.data.items.reduce(
+        (sum, item) => sum + item.quantity,
+        0,
+      );
+      setCartCount(count);
+    } catch (error) {
+      console.error("Failed to fetch cart count", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCartCount();
+  }, [user]); // Refetch when user logs in/out
 
   const handleLogout = async () => {
     try {
       await api.post("/auth/logout");
       setUser(null);
+      setCartCount(0); // Clear cart on logout
       toast.success("Logged out successfully");
     } catch (error) {
       toast.error("Logout failed");
     }
   };
-
-  // Mock cart count
-  const cartCount = 2;
 
   return (
     <nav className="sticky top-0 z-50 bg-gradient-to-r from-sky-700 to-blue-800 backdrop-blur-md shadow-lg text-white">

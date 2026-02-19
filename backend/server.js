@@ -8,6 +8,7 @@ import productRoutes from "./src/routes/product.routes.js";
 import path from "path";
 import prescriptionRoutes from "./src/routes/prescriptionRoutes.js";
 import adminPrescriptionRoutes from "./src/routes/adminPrescriptionRoutes.js";
+import cartRoutes from "./src/routes/cart.routes.js";
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/prescriptions", prescriptionRoutes);
 app.use("/api/admin/prescriptions", adminPrescriptionRoutes);
+app.use("/api/cart", cartRoutes);
 
 // Server
 const PORT = process.env.PORT || 5000;

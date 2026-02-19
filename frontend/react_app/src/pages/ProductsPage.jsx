@@ -20,7 +20,6 @@ const ProductsPage = () => {
     try {
       setLoading(true);
       const res = await api.get("/products");
-
       setProducts(res.data.data || []);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to fetch medicines");
@@ -30,12 +29,12 @@ const ProductsPage = () => {
   };
 
   // Add To Cart
-  const handleAddToCart = async (productId) => {
+  const handleAddToCart = async (e, productId) => {
+    e.stopPropagation(); // ❌ prevent navigating to product page
     try {
       setAddingId(productId);
 
-      // ⚠️ Change to foodId if your backend expects foodId
-      await api.post("/cart/add", { productId });
+      await api.post("/cart/add", { productId, quantity: 1 });
 
       toast.success("Added to cart 🛒");
     } catch (error) {
@@ -78,16 +77,16 @@ const ProductsPage = () => {
                   onClick={() => handleNavigate(product._id)}
                   className="bg-white rounded-3xl shadow-md border border-sky-100 p-5 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
                 >
-                  {/* Image Section */}
+                  {/* Image */}
                   <div className="mb-4 w-full aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100 flex items-center justify-center">
                     <img
                       src={`http://localhost:4000${product.image}`}
                       alt={product.name}
                       className="w-full h-full object-contain p-3 transition-transform duration-300 hover:scale-105"
-                      onError={(e) => {
-                        e.target.src =
-                          "https://via.placeholder.com/400x300?text=No+Image";
-                      }}
+                      onError={(e) =>
+                        (e.target.src =
+                          "https://via.placeholder.com/400x300?text=No+Image")
+                      }
                     />
                   </div>
 
@@ -117,7 +116,7 @@ const ProductsPage = () => {
 
                   {/* Add to Cart */}
                   <button
-                    onClick={() => handleAddToCart(product._id)}
+                    onClick={(e) => handleAddToCart(e, product._id)}
                     disabled={addingId === product._id}
                     className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition ${
                       addingId === product._id

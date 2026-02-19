@@ -1,14 +1,28 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../api/axios";
+import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e) => {
+  const { setUser } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log({ email, password });
     // Call your login API here
+
+    try {
+      const userRes = await api.post("/auth/login", { email, password });
+      setUser(userRes.data);
+      toast.success("Login successful 🎉");
+      navigate("/");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Login failed");
+    }
   };
 
   return (

@@ -8,7 +8,6 @@ import cookieParser from "cookie-parser";
 import productRoutes from "./src/routes/product.routes.js";
 import path from "path";
 
-
 dotenv.config();
 
 const app = express();
@@ -16,12 +15,13 @@ const app = express();
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
 app.use(cookieParser());
-app.use(cors({
-  origin: "http://localhost:5173", // frontend later
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173", // frontend later
+    credentials: true,
+  }),
+);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 // Test Route
 app.get("/", (req, res) => {
@@ -40,5 +40,5 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
 
-// For storing products details into the database. 
+// For storing products details into the database.
 // node src/scripts/seedProducts.js

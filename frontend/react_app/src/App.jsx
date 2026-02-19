@@ -1,4 +1,5 @@
 import React from "react";
+import { Toaster } from "react-hot-toast";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import IndexPage from "./components/IndexPage";
@@ -13,24 +14,38 @@ import ContactPage from "./pages/ContactPage";
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<IndexPage />} />
-          <Route path="/products" element={<ProductsPage />} />
-          <Route path="/categories" element={<CategoriesPage />} />
-          <Route
-            path="/upload-prescription"
-            element={<PrescriptionUploadPage />}
-          />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/login" element={<LoginPage />} />
-        </Route>
-      </Routes>
-    </Router>
+    <>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            borderRadius: "16px",
+            background: "#ffffff",
+            color: "#0f172a",
+            border: "1px solid #e0f2fe",
+          },
+        }}
+      />
+
+      <Router>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<IndexPage />} />
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/categories" element={<CategoriesPage />} />
+            <Route
+              path="/upload-prescription"
+              element={<PrescriptionUploadPage />}
+            />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/login" element={<LoginPage />} />
+          </Route>
+        </Routes>
+      </Router>
+    </>
   );
 };
 

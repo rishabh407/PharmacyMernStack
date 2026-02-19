@@ -1,9 +1,24 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ShoppingCart, Menu, X, Search, User } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import api from "../api/axios";
+import toast from "react-hot-toast";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const { user, setUser } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout");
+      setUser(null);
+      toast.success("Logged out successfully");
+    } catch (error) {
+      toast.error("Logout failed");
+    }
+  };
 
   // Mock cart count
   const cartCount = 2;
@@ -62,21 +77,48 @@ const Navbar = () => {
             )}
           </Link>
 
-          {/* User */}
-          <Link
-            to="/login"
-            className="flex items-center gap-2 hover:text-blue-200 transition"
-          >
-            <User size={18} />
-            Login
-          </Link>
+          {/* User Section */}
+          {user ? (
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <User size={18} />
+                <span className="font-semibold">{user.name}</span>
+              </div>
 
-          <Link
-            to="/signup"
-            className="bg-white text-blue-700 px-4 py-2 rounded-xl font-semibold hover:bg-blue-100 transition shadow-md"
-          >
-            Register
-          </Link>
+              {user.role === "admin" && (
+                <Link
+                  to="/admin/dashboard"
+                  className="hover:text-blue-200 transition"
+                >
+                  Admin Panel
+                </Link>
+              )}
+
+              <button
+                onClick={handleLogout}
+                className="bg-white text-blue-700 px-4 py-2 rounded-xl font-semibold hover:bg-blue-100 transition shadow-md"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="flex items-center gap-2 hover:text-blue-200 transition"
+              >
+                <User size={18} />
+                Login
+              </Link>
+
+              <Link
+                to="/signup"
+                className="bg-white text-blue-700 px-4 py-2 rounded-xl font-semibold hover:bg-blue-100 transition shadow-md"
+              >
+                Register
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Toggle */}
@@ -113,12 +155,36 @@ const Navbar = () => {
           <Link to="/cart" className="block hover:text-blue-200">
             Cart
           </Link>
-          <Link to="/login" className="block hover:text-blue-200">
-            Login
-          </Link>
-          <Link to="/signup" className="block hover:text-blue-200">
-            Register
-          </Link>
+          {user ? (
+            <>
+              <div className="block font-semibold">{user.name}</div>
+
+              {user.role === "admin" && (
+                <Link
+                  to="/admin/dashboard"
+                  className="block hover:text-blue-200"
+                >
+                  Admin Panel
+                </Link>
+              )}
+
+              <button
+                onClick={handleLogout}
+                className="block text-left w-full hover:text-blue-200"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="block hover:text-blue-200">
+                Login
+              </Link>
+              <Link to="/signup" className="block hover:text-blue-200">
+                Register
+              </Link>
+            </>
+          )}
         </div>
       )}
     </nav>

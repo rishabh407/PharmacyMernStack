@@ -7,6 +7,8 @@ import authRoutes from "./src/routes/authroutes.js";
 import cookieParser from "cookie-parser";
 import productRoutes from "./src/routes/product.routes.js";
 import path from "path";
+import prescriptionRoutes from "./src/routes/prescriptionRoutes.js";
+import adminPrescriptionRoutes from "./src/routes/adminPrescriptionRoutes.js";
 
 dotenv.config();
 
@@ -32,8 +34,12 @@ app.get("/", (req, res) => {
 connectDB();
 
 // Auth routes
+
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/prescriptions", prescriptionRoutes);
+app.use("/api/admin/prescriptions", adminPrescriptionRoutes);
+
 // Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

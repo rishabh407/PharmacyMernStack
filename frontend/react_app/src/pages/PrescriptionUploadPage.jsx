@@ -1,17 +1,42 @@
 import React, { useState } from "react";
 import { UploadCloud, FileText } from "lucide-react";
+import api from "../api/axios";
+import toast from "react-hot-toast";
 
 const PrescriptionUploadPage = () => {
   const [file, setFile] = useState(null);
   const [notes, setNotes] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // TODO: integrate with backend API
-    // Use FormData and POST to /api/prescriptions
-    // eslint-disable-next-line no-console
-    console.log({ file, notes });
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!file) {
+    toast.error("Please upload a prescription file");
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append("prescription", file);
+    formData.append("notes", notes);
+
+    await api.post("/prescriptions", formData);
+
+    toast.success("Prescription uploaded. Waiting for pharmacist approval.");
+
+    // Optional: reset form
+    setFile(null);
+    setNotes("");
+
+  } catch (error) {
+    toast.error(
+      error?.response?.data?.message ||
+      "Failed to upload prescription"
+    );
+  }
+};
+
+
 
   const handleFileChange = (e) => {
     setFile(e.target.files?.[0] || null);

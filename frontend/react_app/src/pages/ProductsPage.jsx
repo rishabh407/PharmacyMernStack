@@ -6,6 +6,7 @@ import { useNavigate } from "react-router";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [addingId, setAddingId] = useState(null);
 
@@ -20,7 +21,6 @@ const ProductsPage = () => {
     try {
       setLoading(true);
       const res = await api.get("/products");
-
       setProducts(res.data.data || []);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to fetch medicines");
@@ -30,13 +30,11 @@ const ProductsPage = () => {
   };
 
   // Add To Cart
-  const handleAddToCart = async (productId) => {
+  const handleAddToCart = async (productId, e) => {
+    e.stopPropagation(); // ⛔ prevent card click navigation
     try {
       setAddingId(productId);
-
-      // ⚠️ Change to foodId if your backend expects foodId
       await api.post("/cart/add", { productId });
-
       toast.success("Added to cart 🛒");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to add to cart");
@@ -49,41 +47,57 @@ const ProductsPage = () => {
     fetchProducts();
   }, []);
 
+  // 🔍 Filter Logic
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-sky-50 py-10 px-4">
       <div className="max-w-6xl mx-auto">
+
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
-          <div>
-            <h1 className="text-3xl font-bold text-sky-900">Medicines</h1>
-            <p className="text-sky-700 mt-1">
-              Browse trusted, genuine medicines and healthcare products.
-            </p>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-sky-900">Medicines</h1>
+          <p className="text-sky-700 mt-1">
+            Browse trusted, genuine medicines and healthcare products.
+          </p>
         </div>
 
-        {/* Loading State */}
+        {/* 🔍 Search Input */}
+        <input
+          type="text"
+          placeholder="Search medicines..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full mb-8 px-5 py-3 rounded-2xl border border-sky-200 outline-none focus:ring-2 focus:ring-sky-400"
+          autoFocus
+        />
+
+        {/* Loading */}
         {loading ? (
           <p className="text-center text-sky-700 font-medium">
             Loading medicines...
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {products.length === 0 ? (
-              <p className="text-sky-700">No medicines found.</p>
+            {filteredProducts.length === 0 ? (
+              <p className="text-sky-700 col-span-full text-center">
+                No medicines found.
+              </p>
             ) : (
-              products.map((product) => (
+              filteredProducts.map((product) => (
                 <div
                   key={product._id}
                   onClick={() => handleNavigate(product._id)}
-                  className="bg-white rounded-3xl shadow-md border border-sky-100 p-5 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
+                  className="bg-white rounded-3xl shadow-md border border-sky-100 p-5 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer"
                 >
-                  {/* Image Section */}
+                  {/* Image */}
                   <div className="mb-4 w-full aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100 flex items-center justify-center">
                     <img
                       src={`http://localhost:4000${product.image}`}
                       alt={product.name}
-                      className="w-full h-full object-contain p-3 transition-transform duration-300 hover:scale-105"
+                      className="w-full h-full object-contain p-3 hover:scale-105 transition-transform"
                       onError={(e) => {
                         e.target.src =
                           "https://via.placeholder.com/400x300?text=No+Image";
@@ -117,7 +131,7 @@ const ProductsPage = () => {
 
                   {/* Add to Cart */}
                   <button
-                    onClick={() => handleAddToCart(product._id)}
+                    onClick={(e) => handleAddToCart(product._id, e)}
                     disabled={addingId === product._id}
                     className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition ${
                       addingId === product._id

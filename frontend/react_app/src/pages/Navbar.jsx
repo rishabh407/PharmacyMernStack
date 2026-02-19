@@ -1,90 +1,391 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { ShoppingCart, Menu, X, Search, User } from "lucide-react";
+// import React, { useState, useRef, useEffect } from "react";
+// import { Link, useNavigate } from "react-router-dom";
+// import {
+//   ShoppingCart,
+//   Menu,
+//   X,
+//   Search,
+//   User,
+//   Package,
+//   LayoutDashboard,
+//   MapPin,
+//   LogOut,
+// } from "lucide-react";
+// import { useAuth } from "../context/AuthContext";
+// import api from "../api/axios";
+// import toast from "react-hot-toast";
+// import { useNavigate } from "react-router-dom";
+
+// const Navbar = () => {
+//   const [mobileOpen, setMobileOpen] = useState(false);
+//   const [profileOpen, setProfileOpen] = useState(false);
+//   const dropdownRef = useRef(null);
+//   const [isOpen, setIsOpen] = useState(false);
+//   const [cartCount, setCartCount] = useState(0);
+
+//   const navigate = useNavigate();
+//   const { user, setUser } = useAuth();
+
+//   const cartCount = 2; // replace later with real cart count
+//   // Fetch cart from backend
+//   const fetchCartCount = async () => {
+//     if (!user) return; // Only fetch if logged in
+//     try {
+//       const res = await api.get("/cart"); // GET /cart
+//       const count = res.data.items.reduce(
+//         (sum, item) => sum + item.quantity,
+//         0,
+//       );
+//       setCartCount(count);
+//     } catch (error) {
+//       console.error("Failed to fetch cart count", error);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchCartCount();
+//   }, [user]); // Refetch when user logs in/out
+
+//   const goToProducts = () => {
+//     navigate("/products");
+//     setMobileOpen(false);
+//     setProfileOpen(false);
+//   };
+
+//   const handleLogout = async () => {
+//     try {
+//       await api.post("/auth/logout");
+//       setUser(null);
+//       setCartCount(0); // Clear cart on logout
+//       toast.success("Logged out successfully");
+//       navigate("/");
+//     } catch {
+//       toast.error("Logout failed");
+//     }
+//   };
+
+//   // Close profile dropdown on outside click
+//   useEffect(() => {
+//     const handleClickOutside = (e) => {
+//       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+//         setProfileOpen(false);
+//       }
+//     };
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () =>
+//       document.removeEventListener("mousedown", handleClickOutside);
+//   }, []);
+
+//   return (
+//     <nav className="sticky top-0 z-50 bg-gradient-to-r from-sky-700 to-blue-800 text-white shadow-lg">
+//       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+
+//         {/* Logo */}
+//         <Link
+//           to="/"
+//           onClick={() => setMobileOpen(false)}
+//           className="text-2xl font-bold flex items-center gap-2"
+//         >
+//           <span className="text-3xl">💊</span>
+//           Medicity
+//         </Link>
+
+//         {/* ================= DESKTOP MENU ================= */}
+//         <div className="hidden md:flex items-center gap-8">
+//           <Link to="/" className="hover:text-blue-200">Home</Link>
+//           <Link to="/products" className="hover:text-blue-200">Medicines</Link>
+//           <Link to="/categories" className="hover:text-blue-200">Categories</Link>
+//           <Link to="/about" className="hover:text-blue-200">About</Link>
+
+//           {/* Search */}
+//           <button
+//             onClick={goToProducts}
+//             className="flex items-center gap-2 bg-white text-sky-700 px-4 py-2 rounded-xl font-semibold hover:bg-sky-100 shadow-md"
+//           >
+//             <Search size={16} />
+//             Search
+//           </button>
+
+//           {/* Cart */}
+//           <Link
+//             to="/cart"
+//             className="relative flex items-center gap-2 bg-white text-blue-700 px-4 py-2 rounded-xl font-semibold shadow-md"
+//           >
+//             <ShoppingCart size={18} />
+//             Cart
+//             {cartCount > 0 && (
+//               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+//                 {cartCount}
+//               </span>
+//             )}
+//           </Link>
+
+//           {/* ================= PROFILE DROPDOWN ================= */}
+//           {user ? (
+//             <div className="relative" ref={dropdownRef}>
+//               <button
+//                 onClick={() => setProfileOpen((p) => !p)}
+//                 className="flex items-center gap-2 bg-white text-sky-700 px-4 py-2 rounded-xl font-semibold shadow-md hover:bg-sky-100"
+//               >
+//                 <User size={18} />
+//                 {user.name}
+//               </button>
+
+//               {profileOpen && (
+//                 <div className="absolute right-0 mt-3 w-60 bg-white text-gray-800 rounded-2xl shadow-xl overflow-hidden">
+
+//                   <DropdownLink
+//                     to="/account/dashboard"
+//                     icon={<LayoutDashboard size={16} />}
+//                     label="Dashboard"
+//                     onClick={() => setProfileOpen(false)}
+//                   />
+
+//                   <DropdownLink
+//                     to="/profile"
+//                     icon={<User size={16} />}
+//                     label="My Profile"
+//                     onClick={() => setProfileOpen(false)}
+//                   />
+
+//                   <DropdownLink
+//                     to="/account/addresses"
+//                     icon={<MapPin size={16} />}
+//                     label="Addresses"
+//                     onClick={() => setProfileOpen(false)}
+//                   />
+
+//                   <DropdownLink
+//                     to="/my-orders"
+//                     icon={<Package size={16} />}
+//                     label="My Orders"
+//                     onClick={() => setProfileOpen(false)}
+//                   />
+
+//                   {user.role === "admin" && (
+//                     <DropdownLink
+//                       to="/admin/dashboard"
+//                       icon={<LayoutDashboard size={16} />}
+//                       label="Admin Dashboard"
+//                       onClick={() => setProfileOpen(false)}
+//                     />
+//                   )}
+
+//                   <button
+//                     onClick={handleLogout}
+//                     className="w-full text-left flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50"
+//                   >
+//                     <LogOut size={16} />
+//                     Logout
+//                   </button>
+//                 </div>
+//               )}
+//             </div>
+//           ) : (
+//             <>
+//               <Link to="/login" className="hover:text-blue-200">Login</Link>
+//               <Link
+//                 to="/signup"
+//                 className="bg-white text-blue-700 px-4 py-2 rounded-xl font-semibold shadow-md"
+//               >
+//                 Register
+//               </Link>
+//             </>
+//           )}
+//         </div>
+
+//         {/* ================= MOBILE TOGGLE ================= */}
+//         <button
+//           className="md:hidden"
+//           onClick={() => setMobileOpen((o) => !o)}
+//         >
+//           {mobileOpen ? <X size={28} /> : <Menu size={28} />}
+//         </button>
+//       </div>
+
+//       {/* ================= MOBILE MENU ================= */}
+//       {mobileOpen && (
+//         <div className="md:hidden bg-blue-900 px-4 py-6 space-y-4">
+
+//       {/* Mobile Menu */}
+//       {isOpen && (
+//         <div className="md:hidden bg-blue-900 px-6 pb-6 pt-4 space-y-4">
+//           {/* 🔍 Search */}
+//           <button
+//             onClick={goToProducts}
+//             className="w-full flex items-center gap-2 bg-white text-sky-700 px-4 py-3 rounded-xl font-semibold"
+//           >
+//             <Search size={16} />
+//             Search medicines
+//           </button>
+
+//           {/* Main links */}
+//           <MobileLink to="/" label="Home" setMobileOpen={setMobileOpen} />
+//           <MobileLink to="/products" label="Medicines" setMobileOpen={setMobileOpen} />
+//           <MobileLink to="/categories" label="Categories" setMobileOpen={setMobileOpen} />
+//           <MobileLink to="/about" label="About" setMobileOpen={setMobileOpen} />
+//           <MobileLink to="/cart" label="Cart" setMobileOpen={setMobileOpen} />
+
+//           {user && (
+//             <>
+//               <div className="border-t border-blue-700 my-4" />
+
+//               <MobileLink to="/account/dashboard" label="Dashboard" setMobileOpen={setMobileOpen} />
+//               <MobileLink to="/profile" label="My Profile" setMobileOpen={setMobileOpen} />
+//               <MobileLink to="/account/addresses" label="Addresses" setMobileOpen={setMobileOpen} />
+//               <MobileLink to="/my-orders" label="My Orders" setMobileOpen={setMobileOpen} />
+
+//               {user.role === "admin" && (
+//                 <MobileLink to="/admin/dashboard" label="Admin Dashboard" setMobileOpen={setMobileOpen} />
+//               )}
+
+//               <button
+//                 onClick={handleLogout}
+//                 className="w-full text-left px-4 py-3 rounded-xl text-red-300 hover:bg-red-900/30"
+//               >
+//                 Logout
+//               </button>
+//             </>
+//           )}
+//         </div>
+//       )}
+//     </nav>
+//   );
+// };
+
+// /* ---------------- SMALL REUSABLE COMPONENTS ---------------- */
+
+// const DropdownLink = ({ to, icon, label, onClick }) => (
+//   <Link
+//     to={to}
+//     onClick={onClick}
+//     className="flex items-center gap-3 px-4 py-3 hover:bg-gray-100"
+//   >
+//     {icon}
+//     {label}
+//   </Link>
+// );
+
+// const MobileLink = ({ to, label, setMobileOpen }) => (
+//   <Link
+//     to={to}
+//     onClick={() => setMobileOpen(false)}
+//     className="block px-4 py-3 rounded-xl text-white hover:bg-blue-800"
+//   >
+//     {label}
+//   </Link>
+// );
+
+// export default Navbar;
+
+import React, { useState, useRef, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  ShoppingCart,
+  Menu,
+  X,
+  Search,
+  User,
+  Package,
+  LayoutDashboard,
+  MapPin,
+  LogOut,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axios";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const dropdownRef = useRef(null);
 
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
 
-  // Fetch cart from backend
+  /* ---------------- FETCH CART COUNT ---------------- */
   const fetchCartCount = async () => {
-    if (!user) return; // Only fetch if logged in
+    if (!user) return;
     try {
-      const res = await api.get("/cart"); // GET /cart
+      const res = await api.get("/cart");
       const count = res.data.items.reduce(
         (sum, item) => sum + item.quantity,
-        0,
+        0
       );
       setCartCount(count);
     } catch (error) {
-      console.error("Failed to fetch cart count", error);
+      console.error("Failed to fetch cart count");
     }
   };
 
   useEffect(() => {
     fetchCartCount();
-  }, [user]); // Refetch when user logs in/out
+  }, [user]);
 
+  /* ---------------- ACTIONS ---------------- */
   const goToProducts = () => {
     navigate("/products");
-    setIsOpen(false);
+    setMobileOpen(false);
+    setProfileOpen(false);
   };
 
   const handleLogout = async () => {
     try {
       await api.post("/auth/logout");
       setUser(null);
-      setCartCount(0); // Clear cart on logout
+      setCartCount(0);
       toast.success("Logged out successfully");
+      navigate("/");
     } catch {
       toast.error("Logout failed");
     }
   };
 
+  /* ---------------- CLOSE DROPDOWN ON OUTSIDE CLICK ---------------- */
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <nav className="sticky top-0 z-50 bg-gradient-to-r from-sky-700 to-blue-800 shadow-lg text-white">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <nav className="sticky top-0 z-50 bg-gradient-to-r from-sky-700 to-blue-800 text-white shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold flex items-center gap-2">
+        <Link
+          to="/"
+          onClick={() => setMobileOpen(false)}
+          className="text-2xl font-bold flex items-center gap-2"
+        >
           <span className="text-3xl">💊</span>
           Medicity
         </Link>
 
-        {/* Desktop Menu */}
+        {/* ---------------- DESKTOP MENU ---------------- */}
         <div className="hidden md:flex items-center gap-8">
-          <Link to="/" className="hover:text-blue-200 transition">
-            Home
-          </Link>
-          <Link to="/products" className="hover:text-blue-200 transition">
-            Medicines
-          </Link>
-          <Link to="/categories" className="hover:text-blue-200 transition">
-            Categories
-          </Link>
-          <Link to="/about" className="hover:text-blue-200 transition">
-            About
-          </Link>
+          <Link to="/" className="hover:text-blue-200">Home</Link>
+          <Link to="/products" className="hover:text-blue-200">Medicines</Link>
+          <Link to="/categories" className="hover:text-blue-200">Categories</Link>
+          <Link to="/about" className="hover:text-blue-200">About</Link>
 
-          {/* 🔍 Search Button (redirect only) */}
           <button
             onClick={goToProducts}
-            className="flex items-center gap-2 bg-white text-sky-700 px-4 py-2 rounded-xl font-semibold hover:bg-sky-100 transition shadow-md"
+            className="flex items-center gap-2 bg-white text-sky-700 px-4 py-2 rounded-xl font-semibold hover:bg-sky-100"
           >
             <Search size={16} />
-            Search medicines
+            Search
           </button>
 
-          {/* Cart */}
           <Link
             to="/cart"
-            className="relative flex items-center gap-2 bg-white text-blue-700 px-4 py-2 rounded-xl font-semibold hover:bg-blue-100 transition shadow-md"
+            className="relative flex items-center gap-2 bg-white text-blue-700 px-4 py-2 rounded-xl font-semibold"
           >
             <ShoppingCart size={18} />
             Cart
@@ -95,153 +396,76 @@ const Navbar = () => {
             )}
           </Link>
 
-          {/* User Section */}
+          {/* PROFILE */}
           {user ? (
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <User size={18} />
-                <span className="font-semibold">{user.name}</span>
-              </div>
-
-              {user.role === "admin" && (
-                <Link
-                  to="/admin/dashboard"
-                  className="hover:text-blue-200 transition"
-                >
-                  Admin Panel
-                </Link>
-              )}
-
+            <div className="relative" ref={dropdownRef}>
               <button
-                onClick={handleLogout}
-                className="bg-white text-blue-700 px-4 py-2 rounded-xl font-semibold hover:bg-blue-100 transition shadow-md"
+                onClick={() => setProfileOpen((p) => !p)}
+                className="flex items-center gap-2 bg-white text-sky-700 px-4 py-2 rounded-xl font-semibold"
               >
-                Logout
+                <User size={18} />
+                {user.name}
               </button>
+
+              {profileOpen && (
+                <div className="absolute right-0 mt-3 w-60 bg-white text-gray-800 rounded-2xl shadow-xl overflow-hidden">
+                  <DropdownLink to="/account/dashboard" icon={<LayoutDashboard size={16} />} label="Dashboard" />
+                  <DropdownLink to="/profile" icon={<User size={16} />} label="My Profile" />
+                  <DropdownLink to="/account/addresses" icon={<MapPin size={16} />} label="Addresses" />
+                  <DropdownLink to="/my-orders" icon={<Package size={16} />} label="My Orders" />
+
+                  {user.role === "admin" && (
+                    <DropdownLink to="/admin/dashboard" icon={<LayoutDashboard size={16} />} label="Admin Dashboard" />
+                  )}
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50"
+                  >
+                    <LogOut size={16} />
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <>
-              <Link
-                to="/login"
-                className="flex items-center gap-2 hover:text-blue-200 transition"
-              >
-                <User size={18} />
-                Login
-              </Link>
-
-              <Link
-                to="/signup"
-                className="bg-white text-blue-700 px-4 py-2 rounded-xl font-semibold hover:bg-blue-100 transition shadow-md"
-              >
+              <Link to="/login">Login</Link>
+              <Link to="/signup" className="bg-white text-blue-700 px-4 py-2 rounded-xl font-semibold">
                 Register
               </Link>
             </>
           )}
         </div>
 
-        {/* Mobile Toggle */}
-        <div className="md:hidden">
-          {isOpen ? (
-            <X size={28} onClick={() => setIsOpen(false)} />
-          ) : (
-            <Menu size={28} onClick={() => setIsOpen(true)} />
-          )}
-        </div>
+        {/* MOBILE TOGGLE */}
+        <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
+          {mobileOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
       </div>
 
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden bg-blue-900 px-6 pb-6 pt-4 space-y-4">
-          {/* 🔍 Search */}
-          <button
-            onClick={goToProducts}
-            className="w-full flex items-center gap-2 bg-white text-sky-700 px-4 py-2 rounded-xl font-semibold"
-          >
-            <Search size={16} />
-            Search medicines
-          </button>
+      {/* ---------------- MOBILE MENU ---------------- */}
+      {mobileOpen && (
+        <div className="md:hidden bg-blue-900 px-4 py-6 space-y-3">
+          <MobileLink to="/" label="Home" setMobileOpen={setMobileOpen} />
+          <MobileLink to="/products" label="Medicines" setMobileOpen={setMobileOpen} />
+          <MobileLink to="/categories" label="Categories" setMobileOpen={setMobileOpen} />
+          <MobileLink to="/about" label="About" setMobileOpen={setMobileOpen} />
+          <MobileLink to="/cart" label={`Cart (${cartCount})`} setMobileOpen={setMobileOpen} />
 
-          <Link
-            to="/"
-            onClick={() => setIsOpen(false)}
-            className="block hover:text-blue-200"
-          >
-            Home
-          </Link>
-
-          <Link
-            to="/products"
-            onClick={() => setIsOpen(false)}
-            className="block hover:text-blue-200"
-          >
-            Medicines
-          </Link>
-
-          <Link
-            to="/categories"
-            onClick={() => setIsOpen(false)}
-            className="block hover:text-blue-200"
-          >
-            Categories
-          </Link>
-
-          <Link
-            to="/about"
-            onClick={() => setIsOpen(false)}
-            className="block hover:text-blue-200"
-          >
-            About
-          </Link>
-
-          <Link
-            to="/cart"
-            onClick={() => setIsOpen(false)}
-            className="block hover:text-blue-200"
-          >
-            Cart
-          </Link>
-
-          {user ? (
+          {user && (
             <>
-              <div className="font-semibold">{user.name}</div>
-
-              {user.role === "admin" && (
-                <Link
-                  to="/admin/dashboard"
-                  onClick={() => setIsOpen(false)}
-                  className="block hover:text-blue-200"
-                >
-                  Admin Panel
-                </Link>
-              )}
-
+              <div className="border-t border-blue-700 my-2" />
+              <MobileLink to="/account/dashboard" label="Dashboard" setMobileOpen={setMobileOpen} />
+              <MobileLink to="/profile" label="My Profile" setMobileOpen={setMobileOpen} />
+              <MobileLink to="/account/addresses" label="Addresses" setMobileOpen={setMobileOpen} />
+              <MobileLink to="/my-orders" label="My Orders" setMobileOpen={setMobileOpen} />
               <button
-                onClick={() => {
-                  handleLogout();
-                  setIsOpen(false);
-                }}
-                className="block text-left w-full hover:text-blue-200"
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-3 rounded-xl text-red-300 hover:bg-red-900/30"
               >
                 Logout
               </button>
-            </>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                onClick={() => setIsOpen(false)}
-                className="block hover:text-blue-200"
-              >
-                Login
-              </Link>
-
-              <Link
-                to="/signup"
-                onClick={() => setIsOpen(false)}
-                className="block hover:text-blue-200"
-              >
-                Register
-              </Link>
             </>
           )}
         </div>
@@ -249,5 +473,24 @@ const Navbar = () => {
     </nav>
   );
 };
+
+/* ---------------- REUSABLE COMPONENTS ---------------- */
+
+const DropdownLink = ({ to, icon, label }) => (
+  <Link to={to} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-100">
+    {icon}
+    {label}
+  </Link>
+);
+
+const MobileLink = ({ to, label, setMobileOpen }) => (
+  <Link
+    to={to}
+    onClick={() => setMobileOpen(false)}
+    className="block px-4 py-3 rounded-xl text-white hover:bg-blue-800"
+  >
+    {label}
+  </Link>
+);
 
 export default Navbar;

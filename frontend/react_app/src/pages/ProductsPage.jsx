@@ -1,31 +1,47 @@
-import React from "react";
 import { Star, ShoppingCart } from "lucide-react";
-
-const mockProducts = [
-  {
-    id: 1,
-    name: "Paracetamol 650mg",
-    category: "Pain Relief",
-    price: 120,
-    rating: 4.5,
-  },
-  {
-    id: 2,
-    name: "Metformin 500mg",
-    category: "Diabetes",
-    price: 210,
-    rating: 4.7,
-  },
-  {
-    id: 3,
-    name: "Vitamin D3 Capsules",
-    category: "Vitamins",
-    price: 320,
-    rating: 4.8,
-  },
-];
+import api from "../api/axios";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const ProductsPage = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [addingId, setAddingId] = useState(null);
+
+  // Fetch Products
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get("/products");
+
+      setProducts(res.data.data || []);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to fetch medicines");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Add To Cart
+  const handleAddToCart = async (productId) => {
+    try {
+      setAddingId(productId);
+
+      // ⚠️ Change to foodId if your backend expects foodId
+      await api.post("/cart/add", { productId });
+
+      toast.success("Added to cart 🛒");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to add to cart");
+    } finally {
+      setAddingId(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
   return (
     <div className="min-h-screen bg-sky-50 py-10 px-4">
       <div className="max-w-6xl mx-auto">
@@ -37,66 +53,78 @@ const ProductsPage = () => {
               Browse trusted, genuine medicines and healthcare products.
             </p>
           </div>
-
-          <div className="flex gap-3 w-full md:w-auto flex-col md:flex-row">
-            <input
-              type="text"
-              placeholder="Search medicines..."
-              className="px-3 py-2 rounded-xl border border-sky-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400 text-sm w-full md:w-64"
-            />
-            <select className="px-3 py-2 rounded-xl border border-sky-200 bg-white shadow-sm text-sm w-full md:w-auto">
-              <option>All Categories</option>
-              <option>Pain Relief</option>
-              <option>Diabetes</option>
-              <option>Heart Care</option>
-              <option>Vitamins</option>
-            </select>
-          </div>
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {mockProducts.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white rounded-3xl shadow-md border border-sky-100 p-5 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
-            >
-              {/* Image / Icon */}
-              <div className="h-28 rounded-2xl bg-gradient-to-r from-sky-100 via-emerald-50 to-sky-50 mb-4 flex items-center justify-center text-5xl hover:scale-110 transition">
-                💊
-              </div>
+        {/* Loading State */}
+        {loading ? (
+          <p className="text-center text-sky-700 font-medium">
+            Loading medicines...
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {products.length === 0 ? (
+              <p className="text-sky-700">No medicines found.</p>
+            ) : (
+              products.map((product) => (
+                <div
+                  key={product._id}
+                  className="bg-white rounded-3xl shadow-md border border-sky-100 p-5 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
+                >
+                  {/* Image Section */}
+                  <div className="mb-4 w-full aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100 flex items-center justify-center">
+                    <img
+                      src={`http://localhost:4000${product.image}`}
+                      alt={product.name}
+                      className="w-full h-full object-contain p-3 transition-transform duration-300 hover:scale-105"
+                      onError={(e) => {
+                        e.target.src =
+                          "https://via.placeholder.com/400x300?text=No+Image";
+                      }}
+                    />
+                  </div>
 
-              {/* Name */}
-              <h2 className="font-semibold text-sky-900 mb-1">
-                {product.name}
-              </h2>
+                  {/* Name */}
+                  <h2 className="font-semibold text-sky-900 mb-1">
+                    {product.name}
+                  </h2>
 
-              {/* Category Badge */}
-              <p className="text-xs uppercase tracking-wide text-white font-semibold mb-2 inline-block px-3 py-1 rounded-full bg-gradient-to-r from-emerald-400 to-sky-500">
-                {product.category}
-              </p>
+                  {/* Category */}
+                  <p className="text-xs uppercase tracking-wide text-white font-semibold mb-2 inline-block px-3 py-1 rounded-full bg-gradient-to-r from-emerald-400 to-sky-500">
+                    {product.category || "General"}
+                  </p>
 
-              {/* Price + Rating */}
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-lg font-bold text-sky-900">
-                  ₹{product.price.toFixed(2)}
-                </p>
-                <div className="flex items-center gap-1">
-                  <Star size={16} fill="#f59e0b" stroke="none" />
-                  <span className="font-medium text-sky-900">
-                    {product.rating}
-                  </span>
+                  {/* Price + Rating */}
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-lg font-bold text-sky-900">
+                      ₹{product.price?.toFixed(2) || "0.00"}
+                    </p>
+
+                    <div className="flex items-center gap-1">
+                      <Star size={16} fill="#f59e0b" stroke="none" />
+                      <span className="font-medium text-sky-900">
+                        {product.rating || 4.5}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Add to Cart */}
+                  <button
+                    onClick={() => handleAddToCart(product._id)}
+                    disabled={addingId === product._id}
+                    className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition ${
+                      addingId === product._id
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-sky-600 hover:bg-sky-700 text-white"
+                    }`}
+                  >
+                    <ShoppingCart size={16} />
+                    {addingId === product._id ? "Adding..." : "Add to Cart"}
+                  </button>
                 </div>
-              </div>
-
-              {/* Add to Cart */}
-              <button className="w-full flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white py-2.5 rounded-xl text-sm font-semibold shadow-sm transition">
-                <ShoppingCart size={16} />
-                Add to Cart
-              </button>
-            </div>
-          ))}
-        </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

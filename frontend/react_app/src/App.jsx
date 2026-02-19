@@ -53,6 +53,7 @@ const App = () => {
 /> 
 <Route path="/profile" element={<ProfilePage />} />
 <Route path="/my-orders" element={<MyOrdersPage />} />
+
             <Route path="/login" element={<LoginPage />} />
 <Route path="/account/dashboard" element={<UserDashboard />} />
 <Route path="/account/addresses" element={<AddressPage />} />

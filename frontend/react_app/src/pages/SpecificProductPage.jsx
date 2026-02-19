@@ -49,15 +49,15 @@ const SpecificProductPage = () => {
     try {
       setAdding(true);
 
-      // await api.post("/cart/add", {
-      //   productId: id,
-      //   quantity: quantity,
-      // });
+      await api.post("/cart/add", {
+        productId: product._id,
+        quantity: quantity,
+      });
 
       toast.success("Added to cart!");
       navigate("/cart");
     } catch (error) {
-      console.error("Error adding to cart:", error);
+      toast.error("Failed to add to cart");
     } finally {
       setAdding(false);
     }

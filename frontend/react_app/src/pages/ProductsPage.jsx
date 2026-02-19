@@ -30,11 +30,13 @@ const ProductsPage = () => {
   };
 
   // Add To Cart
-  const handleAddToCart = async (productId, e) => {
-    e.stopPropagation(); // ⛔ prevent card click navigation
+  const handleAddToCart = async (e, productId) => {
+    e.stopPropagation(); // ❌ prevent navigating to product page
     try {
       setAddingId(productId);
-      await api.post("/cart/add", { productId });
+
+      await api.post("/cart/add", { productId, quantity: 1 });
+
       toast.success("Added to cart 🛒");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to add to cart");
@@ -97,11 +99,11 @@ const ProductsPage = () => {
                     <img
                       src={`http://localhost:4000${product.image}`}
                       alt={product.name}
-                      className="w-full h-full object-contain p-3 hover:scale-105 transition-transform"
-                      onError={(e) => {
-                        e.target.src =
-                          "https://via.placeholder.com/400x300?text=No+Image";
-                      }}
+                      className="w-full h-full object-contain p-3 transition-transform duration-300 hover:scale-105"
+                      onError={(e) =>
+                        (e.target.src =
+                          "https://via.placeholder.com/400x300?text=No+Image")
+                      }
                     />
                   </div>
 
@@ -131,7 +133,7 @@ const ProductsPage = () => {
 
                   {/* Add to Cart */}
                   <button
-                    onClick={(e) => handleAddToCart(product._id, e)}
+                    onClick={(e) => handleAddToCart(e, product._id)}
                     disabled={addingId === product._id}
                     className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition ${
                       addingId === product._id

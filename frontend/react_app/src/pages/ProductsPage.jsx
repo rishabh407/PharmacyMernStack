@@ -2,11 +2,18 @@ import { Star, ShoppingCart } from "lucide-react";
 import api from "../api/axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [addingId, setAddingId] = useState(null);
+
+  const navigate = useNavigate();
+
+  const handleNavigate = (id) => {
+    navigate(`/products/${id}`);
+  };
 
   // Fetch Products
   const fetchProducts = async () => {
@@ -68,6 +75,7 @@ const ProductsPage = () => {
               products.map((product) => (
                 <div
                   key={product._id}
+                  onClick={() => handleNavigate(product._id)}
                   className="bg-white rounded-3xl shadow-md border border-sky-100 p-5 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
                 >
                   {/* Image Section */}

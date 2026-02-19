@@ -1,22 +1,24 @@
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
-{
-  name: { type: String, required: true, trim: true },
-  brand: { type: String, required: true, index: true },
-  category: { type: String, required: true, index: true },
-  specialCategory: {
+  {
+    name: { type: String, required: true, trim: true },
+    brand: { type: String, required: true, index: true },
+    category: { type: String, required: true, index: true },
+
+    specialCategory: {
       type: String,
       required: true,
       enum: [
         "Pain Relief",
         "Diabetes Care",
         "Health Care",
-        "Vitamins & Minerals"
+        "Vitamins & Minerals",
       ],
-      index: true
+      index: true,
     },
-  description: { type: String },
+
+    description: { type: String },
 
     sku: { type: String, unique: true },
 

@@ -13,12 +13,12 @@ export const createProduct = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Product created successfully",
-      data: savedProduct
+      data: savedProduct,
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -36,7 +36,7 @@ export const getAllProducts = async (req, res) => {
       minPrice,
       maxPrice,
       prescriptionRequired,
-      isActive
+      isActive,
     } = req.query;
 
     let filter = {};
@@ -46,8 +46,7 @@ export const getAllProducts = async (req, res) => {
     if (prescriptionRequired !== undefined)
       filter.prescriptionRequired = prescriptionRequired === "true";
 
-    if (isActive !== undefined)
-      filter.isActive = isActive === "true";
+    if (isActive !== undefined) filter.isActive = isActive === "true";
 
     if (minPrice || maxPrice) {
       filter.price = {};
@@ -60,9 +59,43 @@ export const getAllProducts = async (req, res) => {
     res.status(200).json({
       success: true,
       count: products.length,
-      data: products
+      data: products,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * @desc    Get specific product
+ * @route   GET /api/products/:id
+ * @access  Admin / User
+ */
+
+export const getSpecificProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // ✅ Find product
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    // ✅ Success response
+    res.status(200).json({
+      success: true,
+      data: product,
+    });
+  } catch (error) {
+    console.error("Get Single Product Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
   }
 };

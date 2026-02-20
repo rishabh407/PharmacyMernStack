@@ -21,6 +21,8 @@ import PrescriptionPageMedicines from "./pages/PrescriptionPageMedicines";
 import MyPrescriptions from "./pages/MyPrescriptions";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderSuccess from "./pages/OrderSuccess";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import AdminProducts from "./pages/Admin/AdminProducts";
 
 const App = () => {
   return (
@@ -43,7 +45,10 @@ const App = () => {
             <Route index element={<IndexPage />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
-            <Route path="/prescription-medicines" element={<PrescriptionPageMedicines />} />
+            <Route
+              path="/prescription-medicines"
+              element={<PrescriptionPageMedicines />}
+            />
             <Route
               path="/upload-prescription"
               element={<PrescriptionUploadPage />}
@@ -63,9 +68,16 @@ const App = () => {
             <Route path="/account/dashboard" element={<UserDashboard />} />
             <Route path="/account/addresses" element={<AddressPage />} />
             <Route path="/products/:id" element={<SpecificProductPage />} />
-<Route path="/my-prescriptions" element={<MyPrescriptions />} />
+            <Route path="/my-prescriptions" element={<MyPrescriptions />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order-success" element={<OrderSuccess />} />
+            <Route path="/payment" element={<OrderSuccess />} />
+
+            {/* Admin  */}
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/products" element={<AdminProducts />} />
+            {/* <Route path="/admin/users" element={<AdminUsers />} /> */}
+            {/* <Route path="/admin/orders" element={<AdminOrders />} /> */}
           </Route>
         </Routes>
       </Router>

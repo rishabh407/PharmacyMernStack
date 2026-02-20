@@ -71,7 +71,6 @@ export const getAllProducts = async (req, res) => {
  * @route   GET /api/products/:id
  * @access  Admin / User
  */
-
 export const getSpecificProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -99,7 +98,6 @@ export const getSpecificProduct = async (req, res) => {
     });
   }
 };
-
 
 export const getProductsByCategory = async (req, res) => {
   try {
@@ -140,4 +138,3 @@ export const getProductsByCategory = async (req, res) => {
     });
   }
 };
-

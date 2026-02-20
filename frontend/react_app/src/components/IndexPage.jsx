@@ -8,12 +8,12 @@ const IndexPage = () => {
     <div className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-emerald-50">
       {/* Hero */}
       <Hero />
+      
+      {/* Categories strip */}
+      <Categories />
 
       {/* Featured medicines */}
       <FeaturedMedicines />
-
-      {/* Categories strip */}
-      <Categories />
 
       {/* Testimonials */}
       <Testimonials />

@@ -198,7 +198,10 @@ const CartPage = () => {
               ₹{grandTotal.toFixed(2)}
             </span>
           </div>
-          <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-sm font-semibold shadow-sm transition">
+          <button
+            onClick={() => navigate("/checkout")}
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-sm font-semibold shadow-sm transition"
+          >
             Proceed to Payment
           </button>
           <p className="text-[11px] text-sky-600 mt-2">

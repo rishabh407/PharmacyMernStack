@@ -19,6 +19,8 @@ import AddressPage from "./pages/AddressPage";
 import UserDashboard from "./pages/UserDashboard";
 import PrescriptionPageMedicines from "./pages/PrescriptionPageMedicines";
 import MyPrescriptions from "./pages/MyPrescriptions";
+import CheckoutPage from "./pages/CheckoutPage";
+import OrderSuccess from "./pages/OrderSuccess";
 
 const App = () => {
   return (
@@ -62,6 +64,8 @@ const App = () => {
             <Route path="/account/addresses" element={<AddressPage />} />
             <Route path="/products/:id" element={<SpecificProductPage />} />
 <Route path="/my-prescriptions" element={<MyPrescriptions />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/payment" element={<OrderSuccess />} />
           </Route>
         </Routes>
       </Router>

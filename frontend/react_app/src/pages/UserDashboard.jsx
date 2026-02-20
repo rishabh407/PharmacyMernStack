@@ -60,7 +60,7 @@ const UserDashboard = () => {
             icon={<FileText size={26} />}
             title="Prescriptions"
             value={stats.prescriptions}
-            link="/prescriptions"
+            link="/my-prescriptions"
             color="from-rose-500 to-pink-600"
           />
 

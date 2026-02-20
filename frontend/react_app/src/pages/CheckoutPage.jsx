@@ -15,20 +15,18 @@ export default function CheckoutPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch cart items
         const cartRes = await api.get("/cart");
         setCartItems(cartRes?.data?.items || []);
 
-        // Fetch saved addresses
         const addrRes = await api.get("/addresses");
         const savedAddresses = addrRes?.data?.data || [];
         setAddresses(savedAddresses);
 
         if (savedAddresses.length > 0) {
-          setSelectedAddress(savedAddresses[0]); // auto-select first address
+          setSelectedAddress(savedAddresses[0]);
         }
       } catch (error) {
-        console.error("Failed to fetch cart or addresses", error);
+        console.error("Failed to load checkout data", error);
       } finally {
         setLoading(false);
       }
@@ -37,22 +35,54 @@ export default function CheckoutPage() {
     fetchData();
   }, []);
 
-  if (loading)
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-screen text-xl font-semibold text-gray-600">
         Loading your cart...
       </div>
     );
+  }
 
   const total = cartItems.reduce(
     (acc, item) => acc + item.product.price * item.quantity,
-    0,
+    0
   );
+
+  const placeOrderHandler = async () => {
+    if (!selectedAddress) {
+      alert("Please select a delivery address");
+      return;
+    }
+
+    try {
+      // 1️⃣ Create order in backend
+      const res = await api.post("/orders", {
+        address: selectedAddress,
+      });
+
+      const order = res.data.order;
+
+      // 2️⃣ Clear cart AFTER order is saved
+      await clearCart();
+
+      // 3️⃣ Navigate to success page
+      navigate("/order-success", {
+        state: {
+          orderId: order._id,
+          address: order.address,
+          total: order.totalAmount,
+        },
+      });
+    } catch (error) {
+      console.error("Order placement failed", error);
+      alert("Failed to place order. Try again.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4">
       <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
-        {/* LEFT SIDE - CART ITEMS */}
+        {/* LEFT - CART ITEMS */}
         <div className="md:col-span-2 bg-white rounded-2xl shadow-xl p-8">
           <h2 className="text-3xl font-bold mb-8 text-gray-800">
             🛒 Your Cart
@@ -65,7 +95,7 @@ export default function CheckoutPage() {
               {cartItems.map((item) => (
                 <div
                   key={item._id}
-                  className="flex items-center justify-between border-b pb-6 hover:bg-gray-50 p-3 rounded-lg transition"
+                  className="flex items-center justify-between border-b pb-6"
                 >
                   <div className="flex items-center gap-5">
                     <img
@@ -75,19 +105,19 @@ export default function CheckoutPage() {
                           : "https://via.placeholder.com/80"
                       }
                       alt={item.product.name}
-                      className="w-20 h-20 object-cover rounded-xl shadow-md"
+                      className="w-20 h-20 object-cover rounded-xl"
                     />
                     <div>
-                      <h4 className="text-lg font-semibold text-gray-800">
+                      <h4 className="text-lg font-semibold">
                         {item.product.name}
                       </h4>
-                      <p className="text-gray-500 mt-1">
+                      <p className="text-gray-500">
                         ₹{item.product.price} × {item.quantity}
                       </p>
                     </div>
                   </div>
 
-                  <div className="text-lg font-bold text-gray-700">
+                  <div className="font-bold">
                     ₹{item.product.price * item.quantity}
                   </div>
                 </div>
@@ -96,93 +126,62 @@ export default function CheckoutPage() {
           )}
         </div>
 
-        {/* RIGHT SIDE - SUMMARY + SELECTED ADDRESS */}
+        {/* RIGHT - SUMMARY */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 h-fit sticky top-10">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6">
-            Order Summary
-          </h3>
+          <h3 className="text-2xl font-bold mb-6">Order Summary</h3>
 
-          {/* Selected Address Section */}
+          {/* Address */}
           <div className="mb-6">
-            <h4 className="text-lg font-semibold text-gray-700 mb-3">
-              📍 Delivery Address
-            </h4>
-            {addresses.length === 0 && (
-              <p className="text-gray-500 text-sm">
-                No saved addresses. Add one in your account.
-              </p>
-            )}
-            <div className="space-y-3">
-              {addresses.map((addr) => (
-                <div
-                  key={addr._id}
-                  onClick={() => {
-                    setSelectedAddress(addr);
-                    navigate("/account/addresses");
-                  }}
-                  className={`cursor-pointer p-4 rounded-2xl border transition-all duration-300
-            ${
-              selectedAddress?._id === addr._id
-                ? "border-emerald-600 bg-emerald-50 shadow-md scale-105"
-                : "border-gray-300 bg-white hover:shadow hover:bg-gray-50"
-            }`}
-                >
-                  <p className="font-semibold text-gray-800">{addr.fullName}</p>
-                  <p className="text-sm text-gray-600">
-                    {addr.addressLine}, {addr.city}, {addr.state} -{" "}
-                    {addr.pincode}
+            <h4 className="font-semibold mb-3">📍 Delivery Address</h4>
+
+            {addresses.map((addr) => (
+              <div
+                key={addr._id}
+                onClick={() => setSelectedAddress(addr)}
+                className={`cursor-pointer p-4 rounded-xl border mb-3 transition
+                  ${
+                    selectedAddress?._id === addr._id
+                      ? "border-emerald-600 bg-emerald-50"
+                      : "border-gray-300"
+                  }`}
+              >
+                <p className="font-semibold">{addr.fullName}</p>
+                <p className="text-sm text-gray-600">
+                  {addr.addressLine}, {addr.city}, {addr.state} -{" "}
+                  {addr.pincode}
+                </p>
+                {addr.phone && (
+                  <p className="text-sm text-gray-500">
+                    Phone: {addr.phone}
                   </p>
-                  {addr.phone && (
-                    <p className="text-sm text-gray-500 mt-1">
-                      Phone: {addr.phone}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
+                )}
+              </div>
+            ))}
           </div>
 
-          {/* Order Totals */}
-          <div className="space-y-4 text-gray-700">
-            <div className="flex justify-between text-sm">
+          {/* Totals */}
+          <div className="space-y-3">
+            <div className="flex justify-between">
               <span>Subtotal</span>
               <span>₹{total}</span>
             </div>
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between">
               <span>Shipping</span>
               <span className="text-emerald-600 font-semibold">Free</span>
             </div>
-            <hr className="border-gray-300" />
-            <div className="flex justify-between text-xl font-bold text-gray-800">
+            <hr />
+            <div className="flex justify-between text-xl font-bold">
               <span>Total</span>
               <span className="text-emerald-600">₹{total}</span>
             </div>
           </div>
 
-          {/* Payment Button */}
+          {/* Place Order */}
           <button
-            onClick={async () => {
-              if (!selectedAddress)
-                return alert("Select a delivery address first!");
-
-              try {
-                // Clear the cart
-                await clearCart();
-
-                // Navigate to payment page with address & total
-                navigate("/payment", {
-                  state: {
-                    address: selectedAddress,
-                    total: total,
-                  },
-                });
-              } catch (err) {
-                console.error("Payment navigation failed", err);
-              }
-            }}
-            className="cursor-pointer mt-6 w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-2xl text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+            onClick={placeOrderHandler}
+            className="mt-6 w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-2xl text-lg font-semibold"
           >
-            Proceed to Payment 💳
+            Place Order ✅
           </button>
         </div>
       </div>

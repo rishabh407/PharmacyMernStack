@@ -65,7 +65,7 @@ const App = () => {
             <Route path="/products/:id" element={<SpecificProductPage />} />
 <Route path="/my-prescriptions" element={<MyPrescriptions />} />
             <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/payment" element={<OrderSuccess />} />
+            <Route path="/order-success" element={<OrderSuccess />} />
           </Route>
         </Routes>
       </Router>

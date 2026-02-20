@@ -18,7 +18,9 @@ const FeaturedMedicines = () => {
       const res = await api.get("/products");
       setProducts(res.data.data || []);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to fetch medicines");
+      toast.error(
+        error.response?.data?.message || "Failed to fetch medicines"
+      );
     }
   };
 
@@ -38,21 +40,22 @@ const FeaturedMedicines = () => {
     scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
   };
 
-  // ✅ FIXED: Add To Cart
+  /* 🛒 Add to cart (non-prescription only) */
   const handleAddToCart = async (productId) => {
     try {
       setAdding(productId);
 
       await api.post("/cart/add", {
         productId,
-        quantity: 1, // default 1
+        quantity: 1
       });
 
-      toast.success("Added to cart!");
+      toast.success("Added to cart 🛒");
       incrementCart(1);
-      navigate("/cart"); // optional: remove if you want user to stay on homepage
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to add to cart");
+      toast.error(
+        error.response?.data?.message || "Failed to add to cart"
+      );
     } finally {
       setAdding(null);
     }
@@ -99,7 +102,7 @@ const FeaturedMedicines = () => {
               <div
                 key={item._id}
                 onClick={() => handleNavigate(item._id)}
-                className="cursor-pointer min-w-[220px] sm:min-w-[250px] lg:min-w-[280px] max-w-[220px] sm:max-w-[250px] lg:max-w-[280px] bg-white rounded-3xl border border-sky-100 shadow-md p-4 sm:p-5 lg:p-6 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 flex-shrink-0 group"
+                className="cursor-pointer min-w-[220px] sm:min-w-[250px] lg:min-w-[280px] max-w-[220px] sm:max-w-[250px] lg:max-w-[280px] bg-white rounded-3xl border border-sky-100 shadow-md p-4 sm:p-5 lg:p-6 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 flex-shrink-0"
               >
                 {/* Badge */}
                 {item.specialCategory && (
@@ -110,7 +113,7 @@ const FeaturedMedicines = () => {
 
                 {/* Image */}
                 <div className="flex items-center justify-center mb-4 sm:mb-6">
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 lg:w-36 lg:h-36 rounded-3xl bg-sky-50 overflow-hidden flex items-center justify-center group-hover:scale-105 transition duration-500">
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 lg:w-36 lg:h-36 rounded-3xl bg-sky-50 overflow-hidden flex items-center justify-center">
                     <img
                       src={`http://localhost:4000${item.image}`}
                       alt={item.name}
@@ -133,22 +136,34 @@ const FeaturedMedicines = () => {
                   ₹{item.price}
                 </p>
 
-                {/* Add To Cart */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAddToCart(item._id);
-                  }}
-                  disabled={adding === item._id}
-                  className={`w-full flex items-center justify-center gap-2 py-2 sm:py-2.5 lg:py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-300 shadow-md ${
-                    adding === item._id
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-gradient-to-r from-sky-600 to-sky-500 text-white hover:from-sky-700 hover:to-sky-600"
-                  }`}
-                >
-                  <ShoppingCart size={16} />
-                  {adding === item._id ? "Adding..." : "Add to Cart"}
-                </button>
+                {/* CTA */}
+                {item.prescriptionRequired ? (
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      navigate(`/upload-prescription?medicineId=${item._id}`);
+    }}
+    className="w-full flex items-center justify-center gap-2 py-2 sm:py-2.5 lg:py-3 rounded-2xl text-xs sm:text-sm font-semibold bg-amber-100 text-amber-800 hover:bg-amber-200 transition shadow-md"
+  >
+    📄 Upload Prescription
+  </button>
+) : (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddToCart(item._id);
+                    }}
+                    disabled={adding === item._id}
+                    className={`w-full flex items-center justify-center gap-2 py-2 sm:py-2.5 lg:py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-300 shadow-md ${
+                      adding === item._id
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-gradient-to-r from-sky-600 to-sky-500 text-white hover:from-sky-700 hover:to-sky-600"
+                    }`}
+                  >
+                    <ShoppingCart size={16} />
+                    {adding === item._id ? "Adding..." : "Add to Cart"}
+                  </button>
+                )}
               </div>
             ))}
           </div>

@@ -23,7 +23,7 @@ const categories = [
   },
   {
     id: 3,
-    name: "Heart Care",
+    name: "Health Care",
     slug: "health-care",
     description:
       "Cardiac care medicines and supplements prescribed by cardiologists.",
@@ -32,7 +32,7 @@ const categories = [
   },
   {
     id: 4,
-    name: "Vitamins & Nutrition",
+    name: "Vitamins & Minerals",
     slug: "vitamins-and-minerals",
     description:
       "Multivitamins, minerals and immunity boosters for all age groups.",

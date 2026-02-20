@@ -17,6 +17,8 @@ import MyOrdersPage from "./pages/MyOrdersPage";
 import ProfilePage from "./pages/ProfilePage";
 import AddressPage from "./pages/AddressPage";
 import UserDashboard from "./pages/UserDashboard";
+import PrescriptionPageMedicines from "./pages/PrescriptionPageMedicines";
+import MyPrescriptions from "./pages/MyPrescriptions";
 
 const App = () => {
   return (
@@ -39,6 +41,7 @@ const App = () => {
             <Route index element={<IndexPage />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
+            <Route path="/prescription-medicines" element={<PrescriptionPageMedicines />} />
             <Route
               path="/upload-prescription"
               element={<PrescriptionUploadPage />}
@@ -58,6 +61,7 @@ const App = () => {
             <Route path="/account/dashboard" element={<UserDashboard />} />
             <Route path="/account/addresses" element={<AddressPage />} />
             <Route path="/products/:id" element={<SpecificProductPage />} />
+<Route path="/my-prescriptions" element={<MyPrescriptions />} />
           </Route>
         </Routes>
       </Router>

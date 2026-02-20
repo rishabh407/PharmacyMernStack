@@ -16,7 +16,11 @@ const prescriptionSchema = new mongoose.Schema(
     notes: {
       type: String
     },
-
+medicine: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Product",
+  required: true
+},
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],

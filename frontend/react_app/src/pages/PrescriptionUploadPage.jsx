@@ -1,50 +1,129 @@
-import React, { useState } from "react";
-import { UploadCloud, FileText } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { UploadCloud, FileText, Pill } from "lucide-react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import toast from "react-hot-toast";
 
 const PrescriptionUploadPage = () => {
   const [file, setFile] = useState(null);
   const [notes, setNotes] = useState("");
+  const [medicine, setMedicine] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const medicineId = searchParams.get("medicineId");
 
-  if (!file) {
-    toast.error("Please upload a prescription file");
-    return;
-  }
+  /* 🔴 BASIC SAFETY CHECK */
+  useEffect(() => {
+    if (!medicineId) {
+      toast.error("Invalid prescription request");
+      navigate("/prescription-medicines");
+    }
+  }, [medicineId, navigate]);
 
-  try {
-    const formData = new FormData();
-    formData.append("prescription", file);
-    formData.append("notes", notes);
+  /* 🔹 FETCH MEDICINE + CHECK EXISTING PRESCRIPTION */
+  useEffect(() => {
+    const init = async () => {
+      try {
+        // 1️⃣ Fetch medicine
+        const medRes = await api.get(`/products/${medicineId}`);
+        setMedicine(medRes.data.data);
 
-    await api.post("/prescriptions", formData);
+        // 2️⃣ Fetch user's prescriptions
+        const presRes = await api.get("/prescriptions/my");
 
-    toast.success("Prescription uploaded. Waiting for pharmacist approval.");
+        const hasPending = presRes.data.data.some(
+          (p) =>
+            p.medicine?._id === medicineId &&
+            p.status === "pending"
+        );
 
-    // Optional: reset form
-    setFile(null);
-    setNotes("");
+        if (hasPending) {
+          toast.error(
+            "You already have a pending prescription for this medicine"
+          );
+          navigate("/my-prescriptions");
+          return;
+        }
+      } catch (error) {
+        toast.error("Failed to initialize prescription upload");
+        navigate("/prescription-medicines");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  } catch (error) {
-    toast.error(
-      error?.response?.data?.message ||
-      "Failed to upload prescription"
-    );
-  }
-};
-
-
+    if (medicineId) init();
+  }, [medicineId, navigate]);
 
   const handleFileChange = (e) => {
     setFile(e.target.files?.[0] || null);
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!file) {
+      toast.error("Please upload a prescription file");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("prescription", file);
+      formData.append("notes", notes);
+      formData.append("medicineId", medicineId);
+
+      await api.post("/prescriptions", formData);
+
+      toast.success(
+        "Prescription uploaded successfully. Waiting for approval."
+      );
+
+      setFile(null);
+      setNotes("");
+      navigate("/my-prescriptions");
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message ||
+          "Failed to upload prescription"
+      );
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-sky-700">
+        Loading prescription details...
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-sky-50 flex items-center justify-center py-10 px-4">
       <div className="bg-white rounded-2xl shadow-lg border border-sky-100 max-w-xl w-full p-8">
+        {/* Medicine Info */}
+        {medicine && (
+          <div className="mb-5 p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+            <div className="flex items-center gap-3">
+              <Pill className="text-emerald-700" size={20} />
+              <div>
+                <p className="text-sm text-emerald-700 font-semibold">
+                  Prescription for:
+                </p>
+                <p className="font-bold text-sky-900">
+                  {medicine.name}
+                </p>
+                <p className="text-sm text-sky-700">
+                  Price: ₹{medicine.price}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Header */}
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-2xl bg-sky-100 flex items-center justify-center">
             <FileText className="text-sky-700" size={22} />
@@ -60,6 +139,7 @@ const handleSubmit = async (e) => {
           </div>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5 mt-4">
           <div className="border-2 border-dashed border-sky-200 rounded-2xl bg-sky-50/60 p-6 text-center cursor-pointer hover:border-sky-400 transition">
             <input

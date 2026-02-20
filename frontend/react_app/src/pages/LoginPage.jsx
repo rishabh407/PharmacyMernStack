@@ -19,7 +19,12 @@ const LoginPage = () => {
       const userRes = await api.post("/auth/login", { email, password });
       setUser(userRes.data);
       toast.success("Login successful 🎉");
-      navigate("/");
+      // If admin, redirect to admin dashboard
+      if (userRes.data?.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed");
     }

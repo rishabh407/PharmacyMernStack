@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ShoppingCart } from "lucide-react";
+import { ChevronLeft, ShoppingCart } from "lucide-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
 import FullMenu from "./FullMenu";
@@ -70,7 +70,7 @@ const SpecificProductPage = () => {
   // 🔹 Loading State
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center text-sky-700 text-lg">
+      <div className="h-screen flex items-center justify-center text-sky-700 text-lg font-semibold">
         Loading product...
       </div>
     );
@@ -79,25 +79,36 @@ const SpecificProductPage = () => {
   // 🔹 Not Found
   if (!product) {
     return (
-      <div className="h-screen flex items-center justify-center text-red-500">
+      <div className="h-screen flex items-center justify-center text-red-500 font-semibold">
         Product not found
       </div>
     );
   }
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-sky-100 py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
+    <section className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-sky-100 py-10 px-6">
+      <div className="max-w-7xl mx-auto">
+        {/* 🔙 Breadcrumb/Back */}
+        <button
+          onClick={() => navigate(-1)}
+          className="group flex items-center text-slate-500 hover:text-sky-600 transition-colors mb-8"
+        >
+          <ChevronLeft
+            size={20}
+            className="group-hover:-translate-x-1 transition-transform"
+          />
+          <span className="font-medium">Back to Products</span>
+        </button>
         <div className="grid lg:grid-cols-2 gap-14 items-center">
           {/* 🖼 IMAGE */}
           <div className="relative flex justify-center">
             {product?.specialCategory && (
-              <span className="absolute top-4 left-4 bg-gradient-to-r from-emerald-500 to-sky-600 text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-lg z-10">
+              <span className="absolute top-4 left-4 bg-gradient-to-r from-emerald-500 to-sky-600 text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">
                 {product.specialCategory}
               </span>
             )}
 
-            <div className="w-80 h-80 sm:w-[420px] sm:h-[420px] bg-white rounded-3xl shadow-2xl p-10 flex items-center justify-center hover:scale-105 transition duration-500">
+            <div className="w-80 h-80 sm:w-[420px] sm:h-[420px] bg-white rounded-3xl shadow-xl border border-gray-100 p-10 flex items-center justify-center hover:scale-105 hover:shadow-2xl transition duration-500">
               <img
                 src={`http://localhost:4000${product?.image}`}
                 alt={product?.name}
@@ -113,7 +124,7 @@ const SpecificProductPage = () => {
           {/* 🧾 DETAILS */}
           <div className="space-y-6">
             {/* Name */}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-sky-900">
+            <h1 className="text-4xl lg:text-5xl font-extrabold text-sky-900 tracking-tight">
               {product?.name}
             </h1>
 
@@ -125,13 +136,13 @@ const SpecificProductPage = () => {
               <span className="text-sm text-gray-400 line-through">
                 ₹{product?.price + 20}
               </span>
-              <span className="bg-red-100 text-red-600 text-xs font-semibold px-2 py-1 rounded-md">
+              <span className="bg-red-200 text-red-700 text-xs font-semibold px-2 py-1 rounded-md shadow-sm">
                 10% OFF
               </span>
             </div>
 
             {/* Description */}
-            <p className="text-gray-600 leading-relaxed">
+            <p className="text-gray-600 leading-relaxed max-w-lg">
               {product?.description ||
                 "This medicine is used for treatment. Always consult a doctor before use."}
             </p>
@@ -139,11 +150,11 @@ const SpecificProductPage = () => {
             {/* Stock */}
             <div>
               {product?.stock > 0 ? (
-                <span className="text-green-600 font-semibold">
+                <span className="text-green-600 font-semibold flex items-center gap-2">
                   ✔ {product.stock} In Stock
                 </span>
               ) : (
-                <span className="text-red-500 font-semibold">
+                <span className="text-red-500 font-semibold flex items-center gap-2">
                   ✖ Out of Stock
                 </span>
               )}
@@ -153,7 +164,6 @@ const SpecificProductPage = () => {
             {product?.stock > 0 && (
               <div className="flex items-center gap-4">
                 <span className="font-medium text-gray-700">Quantity:</span>
-
                 <div className="flex items-center border rounded-xl overflow-hidden shadow-sm">
                   <button
                     onClick={decreaseQty}
@@ -162,9 +172,7 @@ const SpecificProductPage = () => {
                   >
                     -
                   </button>
-
                   <span className="px-6 py-2 font-semibold">{quantity}</span>
-
                   <button
                     onClick={increaseQty}
                     disabled={quantity === product.stock}
@@ -177,13 +185,13 @@ const SpecificProductPage = () => {
             )}
 
             {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-4 pt-6">
               <button
                 onClick={handleAddToCart}
                 disabled={adding || product?.stock === 0}
                 className={`flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-lg font-semibold shadow-xl transition-all duration-300 ${
                   adding || product?.stock === 0
-                    ? "bg-gray-400 cursor-not-allowed"
+                    ? "bg-gray-400 cursor-not-allowed text-white"
                     : "bg-gradient-to-r from-sky-600 to-sky-500 text-white hover:scale-105"
                 }`}
               >

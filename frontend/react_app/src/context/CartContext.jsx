@@ -30,8 +30,22 @@ export const CartProvider = ({ children }) => {
     setCartCount((prev) => prev + quantity);
   };
 
+  const clearCart = async () => {
+    try {
+      // Clear cart on backend
+      await api.delete("/cart/clear"); // make sure your backend has this route
+      // Clear cart locally
+      setCartCount(0);
+    } catch (err) {
+      console.error("Failed to clear cart", err);
+      toast.error("Could not clear cart");
+    }
+  };
+
   return (
-    <CartContext.Provider value={{ cartCount, fetchCartCount, incrementCart }}>
+    <CartContext.Provider
+      value={{ cartCount, fetchCartCount, incrementCart, clearCart }}
+    >
       {children}
     </CartContext.Provider>
   );

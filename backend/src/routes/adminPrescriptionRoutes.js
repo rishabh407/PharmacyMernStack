@@ -1,56 +1,25 @@
 import express from "express";
-import Prescription from "../models/Prescription.js";
 import protect from "../middleware/auth.middleware.js";
 import adminOnly from "../middleware/role.middleware.js";
 
+import {
+  getAllPrescriptions,
+  approvePrescription,
+  rejectPrescription,
+} from "../controllers/adminPrescriptionController.js";
+
 const router = express.Router();
 
-/**
- * Get all pending prescriptions
- */
-router.get("/", protect, adminOnly, async (req, res) => {
-  const prescriptions = await Prescription.find({ status: "pending" })
-    .populate("user", "name email");
+/* 🔐 ADMIN ONLY */
+router.use(protect, adminOnly);
 
-  res.json(prescriptions);
-});
+/* 📄 GET all prescriptions (pending / approved / rejected) */
+router.get("/", getAllPrescriptions);
 
-/**
- * Approve prescription
- */
-router.patch("/:id/approve", protect, adminOnly, async (req, res) => {
-  const prescription = await Prescription.findById(req.params.id);
+/* ✅ APPROVE prescription */
+router.patch("/:id/approve", approvePrescription);
 
-  if (!prescription) {
-    return res.status(404).json({ message: "Prescription not found" });
-  }
-
-  prescription.status = "approved";
-  prescription.reviewedBy = req.user._id;
-  prescription.reviewedAt = new Date();
-
-  await prescription.save();
-
-  res.json({ message: "Prescription approved" });
-});
-
-/**
- * Reject prescription
- */
-router.patch("/:id/reject",  protect, adminOnly, async (req, res) => {
-  const prescription = await Prescription.findById(req.params.id);
-
-  if (!prescription) {
-    return res.status(404).json({ message: "Prescription not found" });
-  }
-
-  prescription.status = "rejected";
-  prescription.reviewedBy = req.user._id;
-  prescription.reviewedAt = new Date();
-
-  await prescription.save();
-
-  res.json({ message: "Prescription rejected" });
-});
+/* ❌ REJECT prescription */
+router.patch("/:id/reject", rejectPrescription);
 
 export default router;

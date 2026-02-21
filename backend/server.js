@@ -44,14 +44,13 @@ connectDB();
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/prescriptions", prescriptionRoutes);
-app.use("/api/admin/prescriptions", adminPrescriptionRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/addresses", addressRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin/products", adminProductRoutes);
-
+app.use("/api/admin/prescriptions", adminPrescriptionRoutes);
 // Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

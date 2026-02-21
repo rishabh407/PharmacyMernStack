@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import toast from "react-hot-toast";
@@ -7,26 +7,45 @@ import { useAuth } from "../context/AuthContext";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const { setUser } = useAuth();
+  const { user, setUser } = useAuth();
   const navigate = useNavigate();
+
+  /* 🔐 Redirect if already logged in */
+  useEffect(() => {
+    if (user) {
+      if (user.role === "admin") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
+    }
+  }, [user, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    // Call your login API here
 
     try {
-      const userRes = await api.post("/auth/login", { email, password });
+      setLoading(true);
+
+      const userRes = await api.post("/auth/login", {
+        email,
+        password,
+      });
+
       setUser(userRes.data);
       toast.success("Login successful 🎉");
-      // If admin, redirect to admin dashboard
-      if (userRes.data?.role === "admin") {
+
+      if (userRes.data.role === "admin") {
         navigate("/admin");
       } else {
         navigate("/");
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,14 +64,15 @@ const LoginPage = () => {
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="block mb-1 font-medium text-sky-900">Email</label>
+            <label className="block mb-1 font-medium text-sky-900">
+              Email
+            </label>
             <input
               type="email"
-              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-3 border border-sky-200 rounded-2xl focus:ring-2 focus:ring-sky-400 focus:border-sky-400 outline-none text-sm transition"
+              className="w-full px-4 py-3 border border-sky-200 rounded-2xl focus:ring-2 focus:ring-sky-400"
             />
           </div>
 
@@ -62,16 +82,22 @@ const LoginPage = () => {
             </label>
             <input
               type="password"
-              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 border border-sky-200 rounded-2xl focus:ring-2 focus:ring-sky-400 focus:border-sky-400 outline-none text-sm transition"
+              className="w-full px-4 py-3 border border-sky-200 rounded-2xl focus:ring-2 focus:ring-sky-400"
             />
           </div>
 
-          <button className="w-full bg-sky-700 hover:bg-sky-800 text-white py-3 rounded-2xl font-semibold shadow-md transition">
-            Login
+          <button
+            disabled={loading}
+            className={`w-full py-3 rounded-2xl font-semibold transition ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-sky-700 hover:bg-sky-800 text-white"
+            }`}
+          >
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 

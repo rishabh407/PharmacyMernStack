@@ -141,14 +141,6 @@ const Navbar = () => {
                     label="My Orders"
                   />
 
-                  {user.role === "admin" && (
-                    <DropdownLink
-                      to="/admin/dashboard"
-                      icon={<LayoutDashboard size={16} />}
-                      label="Admin Dashboard"
-                    />
-                  )}
-
                   <button
                     onClick={handleLogout}
                     className="w-full text-left flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50"
@@ -201,6 +193,20 @@ const Navbar = () => {
             label={`Cart (${cartCount})`}
             setMobileOpen={setMobileOpen}
           />
+          {!user && (
+            <>
+              <MobileLink
+                to="/login"
+                label="Login"
+                setMobileOpen={setMobileOpen}
+              />
+              <MobileLink
+                to="/register"
+                label="Register"
+                setMobileOpen={setMobileOpen}
+              />
+            </>
+          )}
 
           {user && (
             <>

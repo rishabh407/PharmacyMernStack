@@ -53,7 +53,7 @@ export default function CheckoutPage() {
   ======================= */
   const total = cartItems.reduce(
     (acc, item) => acc + item.product.price * item.quantity,
-    0
+    0,
   );
 
   /* =======================
@@ -83,8 +83,7 @@ export default function CheckoutPage() {
       });
     } catch (error) {
       alert(
-        error.response?.data?.message ||
-          "Failed to place order. Try again."
+        error.response?.data?.message || "Failed to place order. Try again.",
       );
     } finally {
       setPlacingOrder(false);
@@ -159,13 +158,10 @@ export default function CheckoutPage() {
               >
                 <p className="font-semibold">{addr.fullName}</p>
                 <p className="text-sm text-gray-600">
-                  {addr.addressLine}, {addr.city}, {addr.state} -{" "}
-                  {addr.pincode}
+                  {addr.addressLine}, {addr.city}, {addr.state} - {addr.pincode}
                 </p>
                 {addr.phone && (
-                  <p className="text-sm text-gray-500">
-                    Phone: {addr.phone}
-                  </p>
+                  <p className="text-sm text-gray-500">Phone: {addr.phone}</p>
                 )}
               </div>
             ))}

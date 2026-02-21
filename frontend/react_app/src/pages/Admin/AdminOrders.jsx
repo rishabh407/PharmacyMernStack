@@ -54,156 +54,162 @@ const AdminOrders = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl sm:text-3xl font-bold">Orders</h1>
-
-      {/* ======================================================
-            📱 MOBILE & TABLET VIEW (CARDS)
-      ====================================================== */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:hidden">
-        {orders.map((o) => (
-          <div
-            key={o._id}
-            className="bg-white p-4 rounded-2xl shadow space-y-3"
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="font-mono text-xs text-gray-500">
-                  #{o._id.slice(-6)}
-                </p>
-                <p className="font-semibold">{o.user?.name}</p>
-                <p className="text-xs text-gray-500">
-                  {o.user?.email}
-                </p>
-              </div>
-
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold ${badge(
-                  o.status
-                )}`}
-              >
-                {o.status.toUpperCase()}
-              </span>
-            </div>
-
-            <div className="text-sm">
-              <span className="text-gray-500">Total:</span>{" "}
-              <span className="font-semibold">
-                ₹{o.totalAmount}
-              </span>
-            </div>
-
-            {o.status === "placed" && (
-              <div className="flex gap-2 pt-2">
-                <button
-                  disabled={updatingId === o._id}
-                  onClick={() =>
-                    updateStatus(o._id, "delivered")
-                  }
-                  className="flex-1 py-2 bg-emerald-600 text-white rounded-xl text-sm"
-                >
-                  Approve
-                </button>
-
-                <button
-                  disabled={updatingId === o._id}
-                  onClick={() =>
-                    updateStatus(o._id, "cancelled")
-                  }
-                  className="flex-1 py-2 bg-red-600 text-white rounded-xl text-sm"
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
-          </div>
-        ))}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6 sm:p-8">
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div>
+          <h1 className="text-4xl font-bold text-slate-800">
+            📦 Orders Management
+          </h1>
+          <p className="text-slate-500 mt-1">
+            Monitor and manage customer orders
+          </p>
+        </div>
       </div>
 
-      {/* ======================================================
-            💻 DESKTOP VIEW (TABLE)
-      ====================================================== */}
-      <div className="hidden lg:block bg-white rounded-xl shadow overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-100">
-            <tr>
-              <th className="p-4 text-left">Order</th>
-              <th className="p-4 text-left">User</th>
-              <th className="p-4">Total</th>
-              <th className="p-4">Status</th>
-              <th className="p-4">Action</th>
-            </tr>
-          </thead>
+      {loading && (
+        <div className="flex justify-center items-center h-64 text-slate-600 font-semibold">
+          Loading orders...
+        </div>
+      )}
 
-          <tbody>
+      {!loading && (
+        <>
+          {/* ================= MOBILE VIEW ================= */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:hidden">
             {orders.map((o) => (
-              <tr key={o._id} className="border-t">
-                <td className="p-4 font-mono text-xs">
-                  #{o._id.slice(-6)}
-                </td>
-
-                <td className="p-4">
-                  <div className="font-medium">
-                    {o.user?.name}
+              <div
+                key={o._id}
+                className="bg-white p-5 rounded-3xl shadow-md hover:shadow-lg transition"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs text-slate-400 font-mono">
+                      #{o._id.slice(-6)}
+                    </p>
+                    <p className="font-semibold text-slate-800">
+                      {o.user?.name}
+                    </p>
+                    <p className="text-xs text-slate-500">{o.user?.email}</p>
                   </div>
-                  <div className="text-xs text-gray-500">
-                    {o.user?.email}
-                  </div>
-                </td>
 
-                <td className="p-4 font-semibold">
-                  ₹{o.totalAmount}
-                </td>
-
-                <td className="p-4">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-semibold ${badge(
-                      o.status
+                      o.status,
                     )}`}
                   >
                     {o.status.toUpperCase()}
                   </span>
-                </td>
+                </div>
 
-                <td className="p-4">
-                  {o.status === "placed" ? (
-                    <div className="flex gap-2">
-                      <button
-                        disabled={updatingId === o._id}
-                        onClick={() =>
-                          updateStatus(o._id, "delivered")
-                        }
-                        className="px-3 py-1 bg-emerald-600 text-white rounded text-xs"
-                      >
-                        Approve
-                      </button>
+                <div className="mt-4 text-sm">
+                  <span className="text-slate-500">Total:</span>{" "}
+                  <span className="font-bold text-slate-800">
+                    ₹{o.totalAmount}
+                  </span>
+                </div>
 
-                      <button
-                        disabled={updatingId === o._id}
-                        onClick={() =>
-                          updateStatus(o._id, "cancelled")
-                        }
-                        className="px-3 py-1 bg-red-600 text-white rounded text-xs"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  ) : (
-                    <span className="text-xs text-gray-500">
-                      —
-                    </span>
-                  )}
-                </td>
-              </tr>
+                {o.status === "placed" && (
+                  <div className="flex gap-3 mt-5">
+                    <button
+                      disabled={updatingId === o._id}
+                      onClick={() => updateStatus(o._id, "delivered")}
+                      className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition"
+                    >
+                      Approve
+                    </button>
+
+                    <button
+                      disabled={updatingId === o._id}
+                      onClick={() => updateStatus(o._id, "cancelled")}
+                      className="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-medium transition"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </div>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </div>
 
-      {!loading && orders.length === 0 && (
-        <p className="text-center text-gray-500">
-          No orders found
-        </p>
+          {/* ================= DESKTOP VIEW ================= */}
+          <div className="hidden lg:block bg-white rounded-3xl shadow-lg overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-100 text-slate-700 uppercase text-xs tracking-wider">
+                <tr>
+                  <th className="px-6 py-4 text-left">Order ID</th>
+                  <th className="px-6 py-4 text-left">Customer</th>
+                  <th className="px-6 py-4 text-center">Total</th>
+                  <th className="px-6 py-4 text-center">Status</th>
+                  <th className="px-6 py-4 text-center">Action</th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y">
+                {orders.map((o) => (
+                  <tr key={o._id} className="hover:bg-slate-50 transition">
+                    <td className="px-6 py-4 font-mono text-xs text-slate-500">
+                      #{o._id.slice(-6)}
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <div className="font-semibold text-slate-800">
+                        {o.user?.name}
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {o.user?.email}
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-4 text-center font-bold text-slate-800">
+                      ₹{o.totalAmount}
+                    </td>
+
+                    <td className="px-6 py-4 text-center">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${badge(
+                          o.status,
+                        )}`}
+                      >
+                        {o.status.toUpperCase()}
+                      </span>
+                    </td>
+
+                    <td className="px-6 py-4 text-center">
+                      {o.status === "placed" ? (
+                        <div className="flex justify-center gap-3">
+                          <button
+                            disabled={updatingId === o._id}
+                            onClick={() => updateStatus(o._id, "delivered")}
+                            className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium transition"
+                          >
+                            Approve
+                          </button>
+
+                          <button
+                            disabled={updatingId === o._id}
+                            onClick={() => updateStatus(o._id, "cancelled")}
+                            className="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium transition"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-slate-400">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {orders.length === 0 && (
+            <div className="text-center text-slate-500 mt-10">
+              No orders found
+            </div>
+          )}
+        </>
       )}
     </div>
   );

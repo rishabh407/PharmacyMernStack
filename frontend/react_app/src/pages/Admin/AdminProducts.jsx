@@ -42,9 +42,7 @@ const AdminProducts = () => {
       const res = await api.get("/admin/products");
       const unique = [
         ...new Set(
-          (res.data.data || [])
-            .map((p) => p.specialCategory)
-            .filter(Boolean)
+          (res.data.data || []).map((p) => p.specialCategory).filter(Boolean),
         ),
       ];
       setCategories(unique);
@@ -93,8 +91,8 @@ const AdminProducts = () => {
     <div className="space-y-8">
       {/* ================= HEADER ================= */}
       <div>
-        <h1 className="text-3xl md:text-4xl font-bold">
-          Inventory Management
+        <h1 className="text-3xl md:text-4xl font-bold  text-gray-800">
+          🏥 Inventory Management
         </h1>
         <p className="text-gray-500 mt-1">
           Manage stock, expiry & availability
@@ -157,9 +155,7 @@ const AdminProducts = () => {
                 )}
                 <div>
                   <p className="font-semibold">{p.name}</p>
-                  <p className="text-xs text-gray-500">
-                    {p.specialCategory}
-                  </p>
+                  <p className="text-xs text-gray-500">{p.specialCategory}</p>
                 </div>
               </div>
 
@@ -189,9 +185,7 @@ const AdminProducts = () => {
                 type="number"
                 defaultValue={p.stock}
                 disabled={!p.isActive}
-                onBlur={(e) =>
-                  updateStock(p._id, Number(e.target.value))
-                }
+                onBlur={(e) => updateStock(p._id, Number(e.target.value))}
                 className="w-full px-3 py-2 border rounded-xl"
               />
 
@@ -235,23 +229,17 @@ const AdminProducts = () => {
                       type="number"
                       defaultValue={p.stock}
                       disabled={!p.isActive}
-                      onBlur={(e) =>
-                        updateStock(p._id, Number(e.target.value))
-                      }
+                      onBlur={(e) => updateStock(p._id, Number(e.target.value))}
                       className="w-20 px-2 py-1 border rounded"
                     />
                     {lowStock && (
-                      <div className="text-xs text-red-600 font-bold">
-                        Low
-                      </div>
+                      <div className="text-xs text-red-600 font-bold">Low</div>
                     )}
                   </td>
                   <td className="p-4">
                     {new Date(p.expiryDate).toLocaleDateString()}
                     {expired && (
-                      <span className="ml-2 text-xs text-red-600">
-                        Expired
-                      </span>
+                      <span className="ml-2 text-xs text-red-600">Expired</span>
                     )}
                   </td>
                   <td className="p-4">
@@ -267,9 +255,7 @@ const AdminProducts = () => {
                   </td>
                   <td className="p-4">
                     <button
-                      onClick={() =>
-                        toggleStatus(p._id, p.isActive)
-                      }
+                      onClick={() => toggleStatus(p._id, p.isActive)}
                       className="px-3 py-1 bg-blue-600 text-white rounded text-xs"
                     >
                       {p.isActive ? "Disable" : "Enable"}
@@ -283,9 +269,7 @@ const AdminProducts = () => {
       </div>
 
       {!loading && products.length === 0 && (
-        <p className="text-center text-gray-500">
-          No products found
-        </p>
+        <p className="text-center text-gray-500">No products found</p>
       )}
     </div>
   );

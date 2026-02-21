@@ -72,13 +72,13 @@ const AdminPrescriptions = () => {
   };
 
   const filtered = prescriptions.filter((p) =>
-    filter === "all" ? true : p.status === filter
+    filter === "all" ? true : p.status === filter,
   );
 
   return (
     <div className="p-4 sm:p-8">
       {/* ================= HEADER ================= */}
-      <h1 className="text-2xl sm:text-3xl font-bold mb-6">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">
         🩺 Prescription Requests
       </h1>
 
@@ -102,10 +102,7 @@ const AdminPrescriptions = () => {
       {/* ================= MOBILE VIEW ================= */}
       <div className="block lg:hidden space-y-4">
         {filtered.map((p) => (
-          <div
-            key={p._id}
-            className="bg-white rounded-xl shadow p-4 space-y-3"
-          >
+          <div key={p._id} className="bg-white rounded-xl shadow p-4 space-y-3">
             <div>
               <p className="font-semibold">{p.user?.name}</p>
               <p className="text-xs text-gray-500">{p.user?.email}</p>
@@ -126,7 +123,7 @@ const AdminPrescriptions = () => {
 
             <span
               className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${badge(
-                p.status
+                p.status,
               )}`}
             >
               {p.status.toUpperCase()}
@@ -161,9 +158,7 @@ const AdminPrescriptions = () => {
                 </div>
               </>
             ) : (
-              <p className="text-xs text-gray-400 italic">
-                Already reviewed
-              </p>
+              <p className="text-xs text-gray-400 italic">Already reviewed</p>
             )}
           </div>
         ))}
@@ -187,9 +182,7 @@ const AdminPrescriptions = () => {
               <tr key={p._id} className="border-t align-top">
                 <td className="p-4">
                   <div className="font-medium">{p.user?.name}</div>
-                  <div className="text-xs text-gray-500">
-                    {p.user?.email}
-                  </div>
+                  <div className="text-xs text-gray-500">{p.user?.email}</div>
                 </td>
 
                 <td className="p-4">{p.medicine?.name}</td>
@@ -212,7 +205,7 @@ const AdminPrescriptions = () => {
                 <td className="p-4">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-semibold ${badge(
-                      p.status
+                      p.status,
                     )}`}
                   >
                     {p.status.toUpperCase()}

@@ -1,4 +1,4 @@
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, FileText } from "lucide-react";
 import api from "../api/axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -16,6 +16,7 @@ const categories = [
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
+  const [myPrescriptions, setMyPrescriptions] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [addingId, setAddingId] = useState(null);
@@ -30,22 +31,70 @@ const ProductsPage = () => {
      FETCH PRODUCTS
   ======================= */
   const fetchProducts = async () => {
+    const res = await api.get("/products");
+    return res.data.data || [];
+  };
+
+  /* =======================
+     FETCH MY PRESCRIPTIONS
+  ======================= */
+  const fetchMyPrescriptions = async () => {
+    try {
+      const res = await api.get("/prescriptions/my");
+      return res.data.data || [];
+    } catch {
+      return [];
+    }
+  };
+
+useEffect(() => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/products");
-      setProducts(res.data.data || []);
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Failed to fetch medicines"
-      );
+      const [productsData, prescriptionsData] = await Promise.all([
+        fetchProducts(),
+        fetchMyPrescriptions(),
+      ]);
+
+      // 🔥 SHOW ONLY ACTIVE PRODUCTS
+      setProducts(productsData.filter(p => p.isActive === true));
+      setMyPrescriptions(prescriptionsData);
+    } catch {
+      toast.error("Failed to fetch medicines");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  loadData();
+}, []);
+
+  /* =======================
+     PRESCRIPTION STATUS
+  ======================= */
+  const getPrescriptionStatus = (productId) => {
+    const prescription = myPrescriptions.find(
+      (p) => p.medicine?._id === productId
+    );
+    return prescription ? prescription.status : null;
+  };
+
+  /* =======================
+     CARD CLICK HANDLER
+  ======================= */
+  const handleCardClick = (product) => {
+    if (product.prescriptionRequired) {
+      const status = getPrescriptionStatus(product._id);
+
+      // 🔥 Pending / Approved → My Prescriptions
+      if (status === "pending" || status === "approved") {
+        navigate("/my-prescriptions");
+        return;
+      }
+    }
+
+    navigate(`/products/${product._id}`);
+  };
 
   /* =======================
      ADD TO CART
@@ -95,6 +144,7 @@ const ProductsPage = () => {
   return (
     <div className="min-h-screen bg-sky-50 py-10 px-4">
       <div className="max-w-6xl mx-auto">
+
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-sky-900">
@@ -114,7 +164,7 @@ const ProductsPage = () => {
           className="w-full mb-6 px-5 py-3 rounded-2xl border border-sky-200 outline-none focus:ring-2 focus:ring-sky-400"
         />
 
-        {/* Prescription Filters */}
+        {/* Filters */}
         <div className="flex gap-3 mb-4 flex-wrap">
           {[
             { key: "all", label: "All" },
@@ -135,7 +185,6 @@ const ProductsPage = () => {
           ))}
         </div>
 
-        {/* Category Filters */}
         <div className="flex gap-3 mb-8 flex-wrap">
           {categories.map((cat) => (
             <button
@@ -164,74 +213,107 @@ const ProductsPage = () => {
                 No medicines found.
               </p>
             ) : (
-              filteredProducts.map((product) => (
-                <div
-                  key={product._id}
-                  onClick={() => navigate(`/products/${product._id}`)}
-                  className="bg-white rounded-3xl shadow-md border border-sky-100 p-5 hover:shadow-xl hover:-translate-y-2 transition cursor-pointer"
-                >
-                  {/* Image */}
-                  <div className="mb-4 w-full aspect-[4/3] rounded-2xl bg-gray-100 flex items-center justify-center">
-                    <img
-                      src={`http://localhost:4000${product.image}`}
-                      alt={product.name}
-                      className="w-full h-full object-contain p-3"
-                    />
+              filteredProducts.map((product) => {
+                const status = product.prescriptionRequired
+                  ? getPrescriptionStatus(product._id)
+                  : null;
+
+                return (
+                  <div
+                    key={product._id}
+                    onClick={() => handleCardClick(product)}
+                    className="bg-white rounded-3xl shadow-md border border-sky-100 p-5 hover:shadow-xl hover:-translate-y-2 transition cursor-pointer"
+                  >
+                    {/* Image */}
+                    <div className="mb-4 w-full aspect-[4/3] rounded-2xl bg-gray-100 flex items-center justify-center">
+                      <img
+                        src={`http://localhost:4000${product.image}`}
+                        alt={product.name}
+                        className="w-full h-full object-contain p-3"
+                      />
+                    </div>
+
+                    <h2 className="font-semibold text-sky-900 mb-1">
+                      {product.name}
+                    </h2>
+
+                    <p className="text-xs font-semibold text-sky-600 mb-2">
+                      {product.specialCategory}
+                    </p>
+
+                    <p className="text-lg font-bold text-sky-900 mb-4">
+                      ₹{product.price}
+                    </p>
+
+                    {/* CTA */}
+                    {product.stock === 0 ? (
+                      <button
+                        disabled
+                        className="w-full py-2.5 rounded-xl bg-red-100 text-red-700"
+                      >
+                        ❌ Out of Stock
+                      </button>
+                    ) : !product.prescriptionRequired ? (
+                      <button
+                        onClick={(e) => handleAddToCart(e, product)}
+                        disabled={addingId === product._id}
+                        className={`w-full py-2.5 rounded-xl flex gap-3 justify-center items-center font-semibold transition ${
+                          addingId === product._id
+                            ? "bg-gray-400"
+                            : "bg-sky-600 hover:bg-sky-700 text-white"
+                        }`}
+                      >
+                        <ShoppingCart size={16} />
+                        {addingId === product._id
+                          ? "Adding..."
+                          : "Add to Cart"}
+                      </button>
+                    ) : !status ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(
+                            `/upload-prescription?medicineId=${product._id}`
+                          );
+                        }}
+                        className="w-full py-2.5 rounded-xl bg-emerald-600 text-white flex items-center justify-center gap-2"
+                      >
+                        <FileText size={18} />
+                        Upload Prescription
+                      </button>
+                    ) : status === "pending" ? (
+                      <button
+                        disabled
+                        className="w-full py-2.5 rounded-xl bg-amber-100 text-amber-700"
+                      >
+                        ⏳ Pending Approval
+                      </button>
+                    ) : status === "rejected" ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(
+                            `/upload-prescription?medicineId=${product._id}`
+                          );
+                        }}
+                        className="w-full py-2.5 rounded-xl bg-red-600 text-white"
+                      >
+                        ❌ Upload Again
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate("/my-prescriptions");
+                        }}
+                        className="w-full py-2.5 rounded-xl bg-emerald-100 text-emerald-700"
+                      >
+                        ✅ Approved · View
+                      </button>
+                    )}
                   </div>
-
-                  {/* Name */}
-                  <h2 className="font-semibold text-sky-900 mb-1">
-                    {product.name}
-                  </h2>
-
-                  {/* Category */}
-                  <p className="text-xs font-semibold text-sky-600 mb-2">
-                    {product.specialCategory}
-                  </p>
-
-                  {/* Price */}
-                  <p className="text-lg font-bold text-sky-900 mb-4">
-                    ₹{product.price}
-                  </p>
-
-                  {/* CTA PRIORITY */}
-                  {product.stock === 0 ? (
-                    <button
-                      disabled
-                      className="w-full py-2.5 rounded-xl text-sm font-semibold bg-red-100 text-red-700 cursor-not-allowed"
-                    >
-                      ❌ Out of Stock
-                    </button>
-                  ) : product.prescriptionRequired ? (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(
-                          `/upload-prescription?medicineId=${product._id}`
-                        );
-                      }}
-                      className="w-full py-2.5 rounded-xl text-sm font-semibold bg-amber-100 text-amber-800 hover:bg-amber-200"
-                    >
-                      📄 Upload Prescription
-                    </button>
-                  ) : (
-                    <button
-                      onClick={(e) => handleAddToCart(e, product)}
-                      disabled={addingId === product._id}
-                      className={`w-full py-2.5 rounded-xl flex gap-3 justify-center items-center text-sm font-semibold transition ${
-                        addingId === product._id
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-sky-600 hover:bg-sky-700 text-white"
-                      }`}
-                    >
-                      <ShoppingCart size={16} />
-                      {addingId === product._id
-                        ? "Adding..."
-                        : "Add to Cart"}
-                    </button>
-                  )}
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         )}

@@ -4,9 +4,9 @@ import generateToken from "../utils/generateToken.js";
 /* REGISTER */
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
-    if (!name || !email || !password || !role) {
+    if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -18,14 +18,12 @@ export const registerUser = async (req, res) => {
       name,
       email,
       password,
-      role: "customer", // 🔒 FORCE CUSTOMER
     });
 
     res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role,
       token: generateToken(user._id, user.role),
     });
   } catch (error) {
@@ -42,6 +40,10 @@ export const loginUser = async (req, res) => {
     // if (!user || !(await user.matchPassword(password))) {
     //   return res.status(401).json({ message: "Invalid email or password" });
     // }
+
+    if (user.isBlocked) {
+      return res.status(403).json({ message: "Account is blocked by admin" });
+    }
 
     const token = generateToken(user._id, user.role);
 

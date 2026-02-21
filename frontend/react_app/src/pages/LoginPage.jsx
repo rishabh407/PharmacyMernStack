@@ -64,9 +64,7 @@ const LoginPage = () => {
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="block mb-1 font-medium text-sky-900">
-              Email
-            </label>
+            <label className="block mb-1 font-medium text-sky-900">Email</label>
             <input
               type="email"
               value={email}

@@ -37,7 +37,6 @@ import AdminSettings from "./pages/Admin/AdminSettings";
 
 /* ================= ADMIN ================= */
 
-
 const App = () => {
   return (
     <>
@@ -92,17 +91,17 @@ const App = () => {
           <Route path="/admin/login" element={<AdminLoginPage />} />
 
           {/* ================= ADMIN PANEL (PROTECTED) ================= */}
-<Route element={<AdminRoute />}>
-  <Route path="/admin" element={<AdminLayout />}>
-    <Route index element={<AdminDashboard />} />
-    <Route path="products" element={<AdminProducts />} />
-    <Route path="orders" element={<AdminOrders />} />
-    <Route path="users" element={<AdminUsers />} />
-    <Route path="prescriptions" element={<AdminPrescriptions />} />
-    <Route path="reports" element={<AdminReports />} />
-    <Route path="settings" element={<AdminSettings />} />
-  </Route>
-</Route>
+          <Route element={<AdminRoute />}>
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="products" element={<AdminProducts />} />
+              <Route path="orders" element={<AdminOrders />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="prescriptions" element={<AdminPrescriptions />} />
+              <Route path="reports" element={<AdminReports />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
+          </Route>
         </Routes>
       </Router>
     </>

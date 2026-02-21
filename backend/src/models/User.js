@@ -26,6 +26,15 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "customer"],
       default: "customer",
     },
+
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
+
+    lastLogin: {
+      type: Date,
+    },
   },
   { timestamps: true },
 );

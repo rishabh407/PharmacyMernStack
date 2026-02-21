@@ -4,10 +4,12 @@ import toast from "react-hot-toast";
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [filter, setFilter] = useState("all");
-  const [categories, setCategories] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [updatingId, setUpdatingId] = useState(null);
 
@@ -31,24 +33,33 @@ const AdminProducts = () => {
     }
   };
 
-  /* ================= INITIAL LOAD ================= */
+  /* ================= LOAD PRODUCTS (FILTER DEPENDENT) ================= */
   useEffect(() => {
     fetchProducts();
   }, [search, category, filter]);
 
-  /* ================= LOAD CATEGORIES ================= */
+  /* ================= LOAD CATEGORIES (ONCE) ================= */
   useEffect(() => {
-    api
-      .get("/admin/products")
-      .then((res) => {
+    const fetchCategories = async () => {
+      try {
+        const res = await api.get("/admin/products");
+        const products = res.data.data || [];
+
         const uniqueCategories = [
           ...new Set(
-            (res.data || []).map((p) => p.specialCategory)
+            products
+              .map((p) => p.specialCategory)
+              .filter(Boolean)
           ),
         ];
+
         setCategories(uniqueCategories);
-      })
-      .catch(() => {});
+      } catch (error) {
+        // silent
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   /* ================= UPDATE STOCK ================= */
@@ -62,7 +73,7 @@ const AdminProducts = () => {
         stock,
       });
 
-      toast.success("Stock updated successfully");
+      toast.success("Stock updated");
       fetchProducts();
     } catch (error) {
       toast.error("Failed to update stock");
@@ -78,7 +89,7 @@ const AdminProducts = () => {
         isActive: !isActive,
       });
 
-      toast.success("Product status updated");
+      toast.success("Status updated");
       fetchProducts();
     } catch (error) {
       toast.error("Failed to update status");
@@ -187,9 +198,7 @@ const AdminProducts = () => {
                   </td>
 
                   <td className="p-4">
-                    {new Date(
-                      p.expiryDate
-                    ).toLocaleDateString()}
+                    {new Date(p.expiryDate).toLocaleDateString()}
                     {expired && (
                       <span className="ml-2 text-xs text-red-700 font-bold">
                         EXPIRED

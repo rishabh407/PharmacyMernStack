@@ -55,8 +55,7 @@ const Navbar = () => {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -144,7 +143,7 @@ const Navbar = () => {
 
                   {user.role === "admin" && (
                     <DropdownLink
-                      to="/admin/dashboard"
+                      to="/admin"
                       icon={<LayoutDashboard size={16} />}
                       label="Admin Dashboard"
                     />
@@ -244,6 +243,15 @@ const Navbar = () => {
                 label="My Orders"
                 setMobileOpen={setMobileOpen}
               />
+
+              {user.role === "admin" && (
+                <MobileLink
+                  to="/admin"
+                  label="Admin Dashboard"
+                  setMobileOpen={setMobileOpen}
+                />
+              )}
+
               <button
                 onClick={handleLogout}
                 className="w-full text-left px-4 py-3 rounded-xl text-red-300 hover:bg-red-900/30"
@@ -261,10 +269,7 @@ const Navbar = () => {
 /* ---------------- REUSABLE COMPONENTS ---------------- */
 
 const DropdownLink = ({ to, icon, label }) => (
-  <Link
-    to={to}
-    className="flex items-center gap-3 px-4 py-3 hover:bg-gray-100"
-  >
+  <Link to={to} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-100">
     {icon}
     {label}
   </Link>

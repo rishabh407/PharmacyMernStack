@@ -1,15 +1,31 @@
 import React from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Package, ShoppingBag, Users, FileText, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingBag,
+  Users,
+  FileText,
+  LogOut,
+} from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import api from "../../api/axios";
+import toast from "react-hot-toast";
 
 const AdminLayout = () => {
   const { setUser } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    setUser(null);
-    navigate("/admin/login");
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout"); // 🔐 backend logout
+    } catch (error) {
+      // silent fail (even if cookie already expired)
+    } finally {
+      setUser(null);
+      toast.success("Logged out successfully");
+      navigate("/admin/login");
+    }
   };
 
   return (

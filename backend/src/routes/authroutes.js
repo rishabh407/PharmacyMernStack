@@ -10,9 +10,15 @@ const router = express.Router();
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
+/* ✅ LOGOUT (IMPORTANT) */
 router.post("/logout", (req, res) => {
-  res.clearCookie("token");
-  res.json({ message: "Logged out successfully" });
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: false, // true in production (HTTPS)
+  });
+
+  res.json({ success: true, message: "Logged out successfully" });
 });
 router.get("/me", protect, getMe);
 

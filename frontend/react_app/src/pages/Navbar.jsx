@@ -55,7 +55,8 @@ const Navbar = () => {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -208,6 +209,24 @@ const Navbar = () => {
             </>
           )}
 
+          {/* NOT LOGGED IN */}
+          {!user && (
+            <>
+              <div className="border-t border-blue-700 my-2" />
+              <MobileLink
+                to="/login"
+                label="Login"
+                setMobileOpen={setMobileOpen}
+              />
+              <MobileLink
+                to="/signup"
+                label="Register"
+                setMobileOpen={setMobileOpen}
+              />
+            </>
+          )}
+
+          {/* LOGGED IN */}
           {user && (
             <>
               <div className="border-t border-blue-700 my-2" />
@@ -248,7 +267,10 @@ const Navbar = () => {
 /* ---------------- REUSABLE COMPONENTS ---------------- */
 
 const DropdownLink = ({ to, icon, label }) => (
-  <Link to={to} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-100">
+  <Link
+    to={to}
+    className="flex items-center gap-3 px-4 py-3 hover:bg-gray-100"
+  >
     {icon}
     {label}
   </Link>

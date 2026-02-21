@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 /* ================= USER LAYOUT ================= */
 import Layout from "./components/Layout";
-
 /* ================= USER PAGES ================= */
 import IndexPage from "./components/IndexPage";
 import SignupPage from "./pages/SignupPage";
@@ -25,11 +24,19 @@ import AddressPage from "./pages/AddressPage";
 import UserDashboard from "./pages/UserDashboard";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
+import AdminLoginPage from "./pages/Admin/AdminLoginPage";
+import AdminPrescriptions from "./pages/Admin/AdminPrescriptions";
+import AdminLayout from "./pages/Admin/AdminLayout";
+import AdminRoute from "./pages/Admin/AdminRoute";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import AdminProducts from "./pages/Admin/AdminProducts";
+import AdminOrders from "./pages/Admin/AdminOrders";
+import AdminUsers from "./pages/Admin/AdminUsers";
+import AdminReports from "./pages/Admin/AdminReports";
+import AdminSettings from "./pages/Admin/AdminSettings";
 
 /* ================= ADMIN ================= */
-import AdminRoute from "./pages/Admin/AdminRoute";
-import AdminLoginPage from "./pages/Admin/AdminLoginPage";
-import AdminDashboard from "./pages/Admin/AdminDashboard";
+
 
 const App = () => {
   return (
@@ -85,14 +92,17 @@ const App = () => {
           <Route path="/admin/login" element={<AdminLoginPage />} />
 
           {/* ================= ADMIN PANEL (PROTECTED) ================= */}
-          <Route element={<AdminRoute />}>
-            <Route path="/admin" element={<AdminDashboard />} />
-            {/* future admin routes */}
-            {/* /admin/products */}
-            {/* /admin/orders */}
-            {/* /admin/users */}
-            {/* /admin/prescriptions */}
-          </Route>
+<Route element={<AdminRoute />}>
+  <Route path="/admin" element={<AdminLayout />}>
+    <Route index element={<AdminDashboard />} />
+    <Route path="products" element={<AdminProducts />} />
+    <Route path="orders" element={<AdminOrders />} />
+    <Route path="users" element={<AdminUsers />} />
+    <Route path="prescriptions" element={<AdminPrescriptions />} />
+    <Route path="reports" element={<AdminReports />} />
+    <Route path="settings" element={<AdminSettings />} />
+  </Route>
+</Route>
         </Routes>
       </Router>
     </>

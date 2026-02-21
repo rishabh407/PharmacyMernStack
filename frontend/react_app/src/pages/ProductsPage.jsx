@@ -20,16 +20,15 @@ const ProductsPage = () => {
   const [loading, setLoading] = useState(false);
   const [addingId, setAddingId] = useState(null);
 
-  const [filter, setFilter] = useState("all"); // prescription filter
+  const [filter, setFilter] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   const navigate = useNavigate();
   const { incrementCart } = useCart();
 
-  const handleNavigate = (id) => {
-    navigate(`/products/${id}`);
-  };
-
+  /* =======================
+     FETCH PRODUCTS
+  ======================= */
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -44,11 +43,27 @@ const ProductsPage = () => {
     }
   };
 
-  const handleAddToCart = async (e, productId) => {
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  /* =======================
+     ADD TO CART
+  ======================= */
+  const handleAddToCart = async (e, product) => {
     e.stopPropagation();
+
+    if (product.stock === 0) {
+      toast.error("Product is out of stock");
+      return;
+    }
+
     try {
-      setAddingId(productId);
-      await api.post("/cart/add", { productId, quantity: 1 });
+      setAddingId(product._id);
+      await api.post("/cart/add", {
+        productId: product._id,
+        quantity: 1,
+      });
       toast.success("Added to cart 🛒");
       incrementCart(1);
     } catch (error) {
@@ -60,11 +75,9 @@ const ProductsPage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  /* 🔍 SEARCH + PRESCRIPTION + SPECIAL CATEGORY FILTER */
+  /* =======================
+     FILTER LOGIC
+  ======================= */
   const filteredProducts = products
     .filter((product) =>
       product.name.toLowerCase().includes(search.toLowerCase())
@@ -82,7 +95,6 @@ const ProductsPage = () => {
   return (
     <div className="min-h-screen bg-sky-50 py-10 px-4">
       <div className="max-w-6xl mx-auto">
-
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-sky-900">
@@ -155,11 +167,11 @@ const ProductsPage = () => {
               filteredProducts.map((product) => (
                 <div
                   key={product._id}
-                  onClick={() => handleNavigate(product._id)}
-                  className="bg-white rounded-3xl shadow-md border border-sky-100 p-5 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer"
+                  onClick={() => navigate(`/products/${product._id}`)}
+                  className="bg-white rounded-3xl shadow-md border border-sky-100 p-5 hover:shadow-xl hover:-translate-y-2 transition cursor-pointer"
                 >
                   {/* Image */}
-                  <div className="mb-4 w-full aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100 flex items-center justify-center">
+                  <div className="mb-4 w-full aspect-[4/3] rounded-2xl bg-gray-100 flex items-center justify-center">
                     <img
                       src={`http://localhost:4000${product.image}`}
                       alt={product.name}
@@ -182,8 +194,15 @@ const ProductsPage = () => {
                     ₹{product.price}
                   </p>
 
-                  {/* CTA */}
-                  {product.prescriptionRequired ? (
+                  {/* CTA PRIORITY */}
+                  {product.stock === 0 ? (
+                    <button
+                      disabled
+                      className="w-full py-2.5 rounded-xl text-sm font-semibold bg-red-100 text-red-700 cursor-not-allowed"
+                    >
+                      ❌ Out of Stock
+                    </button>
+                  ) : product.prescriptionRequired ? (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -191,15 +210,13 @@ const ProductsPage = () => {
                           `/upload-prescription?medicineId=${product._id}`
                         );
                       }}
-                      className="w-full py-2.5 rounded-xl text-sm font-semibold bg-amber-100 text-amber-800 hover:bg-amber-200 transition"
+                      className="w-full py-2.5 rounded-xl text-sm font-semibold bg-amber-100 text-amber-800 hover:bg-amber-200"
                     >
                       📄 Upload Prescription
                     </button>
                   ) : (
                     <button
-                      onClick={(e) =>
-                        handleAddToCart(e, product._id)
-                      }
+                      onClick={(e) => handleAddToCart(e, product)}
                       disabled={addingId === product._id}
                       className={`w-full py-2.5 rounded-xl flex gap-3 justify-center items-center text-sm font-semibold transition ${
                         addingId === product._id

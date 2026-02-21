@@ -5,7 +5,7 @@ import api from "../api/axios";
 import toast from "react-hot-toast";
 
 const CategoryProductsPage = () => {
-  const { category } = useParams(); // e.g. vitamins-and-minerals
+  const { category } = useParams();
   const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
@@ -28,20 +28,30 @@ const CategoryProductsPage = () => {
     fetchCategoryProducts();
   }, [category]);
 
-  const handleAddToCart = async (productId, e) => {
+  const handleAddToCart = async (product, e) => {
     e.stopPropagation();
+
+    if (product.stock === 0) {
+      toast.error("Product is out of stock");
+      return;
+    }
+
     try {
-      setAddingId(productId);
-      await api.post("/cart/add", { productId });
+      setAddingId(product._id);
+      await api.post("/cart/add", {
+        productId: product._id,
+        quantity: 1,
+      });
       toast.success("Added to cart 🛒");
-    } catch {
-      toast.error("Failed to add to cart");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to add to cart"
+      );
     } finally {
       setAddingId(null);
     }
   };
 
-  // 🔹 Format heading nicely
   const formattedTitle = category
     .replaceAll("-", " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
@@ -49,8 +59,6 @@ const CategoryProductsPage = () => {
   return (
     <div className="min-h-screen bg-sky-50 py-10 px-4">
       <div className="max-w-6xl mx-auto">
-
-        {/* Header */}
         <h1 className="text-3xl font-bold text-sky-900 mb-8">
           {formattedTitle} Medicines
         </h1>
@@ -67,7 +75,7 @@ const CategoryProductsPage = () => {
               <div
                 key={product._id}
                 onClick={() => navigate(`/products/${product._id}`)}
-                className="bg-white rounded-3xl shadow-md border border-sky-100 p-5 
+                className="bg-white rounded-3xl shadow-md border border-sky-100 p-5
                 hover:shadow-xl hover:-translate-y-2 transition cursor-pointer"
               >
                 {/* Image */}
@@ -99,18 +107,42 @@ const CategoryProductsPage = () => {
                   </div>
                 </div>
 
-                {/* Add to Cart */}
-                <button
-                  onClick={(e) => handleAddToCart(product._id, e)}
-                  disabled={addingId === product._id}
-                  className={`w-full py-2 rounded-xl font-semibold transition ${
-                    addingId === product._id
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-sky-600 text-white hover:bg-sky-700"
-                  }`}
-                >
-                  {addingId === product._id ? "Adding..." : "Add to Cart"}
-                </button>
+                {/* CTA */}
+                {product.stock === 0 ? (
+                  <button
+                    disabled
+                    className="w-full py-2 rounded-xl font-semibold bg-red-100 text-red-700 cursor-not-allowed"
+                  >
+                    ❌ Out of Stock
+                  </button>
+                ) : product.prescriptionRequired ? (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(
+                        `/upload-prescription?medicineId=${product._id}`
+                      );
+                    }}
+                    className="w-full py-2 rounded-xl font-semibold bg-amber-100 text-amber-800 hover:bg-amber-200"
+                  >
+                    📄 Upload Prescription
+                  </button>
+                ) : (
+                  <button
+                    onClick={(e) => handleAddToCart(product, e)}
+                    disabled={addingId === product._id}
+                    className={`w-full flex items-center justify-center gap-2 py-2 rounded-xl font-semibold transition ${
+                      addingId === product._id
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-sky-600 text-white hover:bg-sky-700"
+                    }`}
+                  >
+                    <ShoppingCart size={16} />
+                    {addingId === product._id
+                      ? "Adding..."
+                      : "Add to Cart"}
+                  </button>
+                )}
               </div>
             ))}
           </div>

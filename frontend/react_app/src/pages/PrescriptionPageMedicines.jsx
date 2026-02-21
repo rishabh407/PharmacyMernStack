@@ -11,7 +11,9 @@ const PrescriptionPageMedicines = () => {
 
   const navigate = useNavigate();
 
-  /* 🔹 Fetch ONLY prescription-required medicines */
+  /* =======================
+     FETCH PRESCRIPTION MEDICINES
+  ======================= */
   const fetchPrescriptionMedicines = async () => {
     try {
       setLoading(true);
@@ -33,13 +35,15 @@ const PrescriptionPageMedicines = () => {
     }
   };
 
-  /* 🔹 Fetch logged-in user's prescriptions */
+  /* =======================
+     FETCH USER PRESCRIPTIONS
+  ======================= */
   const fetchMyPrescriptions = async () => {
     try {
       const res = await api.get("/prescriptions/my");
       setMyPrescriptions(res.data.data || []);
-    } catch (error) {
-      // Silent fail (user may not be logged in yet)
+    } catch {
+      // silent (user might not be logged in)
     }
   };
 
@@ -48,7 +52,9 @@ const PrescriptionPageMedicines = () => {
     fetchMyPrescriptions();
   }, []);
 
-  /* 🔹 Get prescription status for a medicine */
+  /* =======================
+     PRESCRIPTION STATUS
+  ======================= */
   const getPrescriptionStatus = (productId) => {
     const prescription = myPrescriptions.find(
       (p) => p.medicine?._id === productId
@@ -75,13 +81,13 @@ const PrescriptionPageMedicines = () => {
           </p>
         </div>
 
-        {/* Warning Banner */}
+        {/* Warning */}
         <div className="mb-8 bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
           ⚠️ Prescription medicines cannot be purchased without pharmacist
           approval.
         </div>
 
-        {/* Loading */}
+        {/* Content */}
         {loading ? (
           <p className="text-center text-sky-700 font-medium">
             Loading prescription medicines...
@@ -99,10 +105,10 @@ const PrescriptionPageMedicines = () => {
                 return (
                   <div
                     key={product._id}
-                    className="bg-white rounded-3xl shadow-md border border-sky-100 p-5 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
+                    className="bg-white rounded-3xl shadow-md border border-sky-100 p-5 hover:shadow-xl hover:-translate-y-2 transition"
                   >
                     {/* Image */}
-                    <div className="mb-4 w-full aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100 flex items-center justify-center">
+                    <div className="mb-4 w-full aspect-[4/3] bg-gray-100 rounded-2xl flex items-center justify-center">
                       <img
                         src={`http://localhost:4000${product.image}`}
                         alt={product.name}
@@ -119,7 +125,7 @@ const PrescriptionPageMedicines = () => {
                       {product.name}
                     </h2>
 
-                    {/* Category */}
+                    {/* Badge */}
                     <p className="text-xs uppercase tracking-wide text-white font-semibold mb-2 inline-block px-3 py-1 rounded-full bg-gradient-to-r from-red-400 to-amber-500">
                       Prescription Required
                     </p>
@@ -129,7 +135,6 @@ const PrescriptionPageMedicines = () => {
                       <p className="text-lg font-bold text-sky-900">
                         ₹{product.price?.toFixed(2) || "0.00"}
                       </p>
-
                       <div className="flex items-center gap-1">
                         <Star size={16} fill="#f59e0b" stroke="none" />
                         <span className="font-medium text-sky-900">
@@ -138,28 +143,31 @@ const PrescriptionPageMedicines = () => {
                       </div>
                     </div>
 
-                    {/* CTA based on prescription status */}
-                    {!status && (
+                    {/* CTA PRIORITY */}
+                    {product.stock === 0 ? (
+                      <button
+                        disabled
+                        className="w-full bg-red-100 text-red-700 py-2.5 rounded-xl text-sm font-semibold cursor-not-allowed"
+                      >
+                        ❌ Out of Stock
+                      </button>
+                    ) : !status ? (
                       <button
                         onClick={(e) =>
                           handleUploadPrescription(e, product._id)
                         }
-                        className="w-full bg-emerald-600 hover:bg-emerald-700 flex flex-row gap-4 justify-center items-center text-white py-2.5 rounded-xl text-sm font-semibold"
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center gap-3 text-white py-2.5 rounded-xl text-sm font-semibold"
                       >
-                        <FileText size={30} /> Upload Prescription
+                        <FileText size={20} /> Upload Prescription
                       </button>
-                    )}
-
-                    {status === "pending" && (
+                    ) : status === "pending" ? (
                       <button
                         disabled
                         className="w-full bg-amber-100 text-amber-700 py-2.5 rounded-xl text-sm font-semibold cursor-not-allowed"
                       >
                         ⏳ Pending Approval
                       </button>
-                    )}
-
-                    {status === "rejected" && (
+                    ) : status === "rejected" ? (
                       <button
                         onClick={(e) =>
                           handleUploadPrescription(e, product._id)
@@ -168,9 +176,7 @@ const PrescriptionPageMedicines = () => {
                       >
                         ❌ Upload Again
                       </button>
-                    )}
-
-                    {status === "approved" && (
+                    ) : (
                       <button
                         onClick={() => navigate("/my-prescriptions")}
                         className="w-full bg-emerald-100 text-emerald-700 py-2.5 rounded-xl text-sm font-semibold"

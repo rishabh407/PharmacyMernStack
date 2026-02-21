@@ -13,6 +13,9 @@ const FeaturedMedicines = () => {
   const navigate = useNavigate();
   const { incrementCart } = useCart();
 
+  /* =======================
+     FETCH PRODUCTS
+  ======================= */
   const fetchProducts = async () => {
     try {
       const res = await api.get("/products");
@@ -28,10 +31,9 @@ const FeaturedMedicines = () => {
     fetchProducts();
   }, []);
 
-  const handleNavigate = (id) => {
-    navigate(`/products/${id}`);
-  };
-
+  /* =======================
+     SCROLL HANDLERS
+  ======================= */
   const scrollLeft = () => {
     scrollRef.current.scrollBy({ left: -300, behavior: "smooth" });
   };
@@ -40,14 +42,16 @@ const FeaturedMedicines = () => {
     scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
   };
 
-  /* 🛒 Add to cart (non-prescription only) */
+  /* =======================
+     ADD TO CART
+  ======================= */
   const handleAddToCart = async (productId) => {
     try {
       setAdding(productId);
 
       await api.post("/cart/add", {
         productId,
-        quantity: 1
+        quantity: 1,
       });
 
       toast.success("Added to cart 🛒");
@@ -65,9 +69,9 @@ const FeaturedMedicines = () => {
     <section className="bg-gradient-to-b from-sky-50 via-white to-sky-50 py-12 sm:py-16 lg:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 sm:mb-12">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
           <div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-sky-900 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-sky-900">
               Featured Medicines
             </h2>
             <p className="text-sky-600 text-sm mt-2">
@@ -77,84 +81,89 @@ const FeaturedMedicines = () => {
 
           <Link
             to="/products"
-            className="text-sm font-semibold text-sky-700 hover:text-sky-900 transition underline underline-offset-4"
+            className="text-sm font-semibold text-sky-700 hover:text-sky-900 underline"
           >
             View all →
           </Link>
         </div>
 
-        {/* Scroll Wrapper */}
+        {/* Scroll Container */}
         <div className="relative">
-          {/* Left Scroll Button */}
+          {/* Left */}
           <button
             onClick={scrollLeft}
-            className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-md shadow-xl rounded-full w-10 h-10 lg:w-11 lg:h-11 items-center justify-center hover:scale-110 hover:bg-sky-100 transition"
+            className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white shadow-xl rounded-full w-10 h-10 items-center justify-center hover:scale-110 transition"
           >
             <MoveLeftIcon size={18} />
           </button>
 
-          {/* Products Scroll */}
+          {/* Products */}
           <div
             ref={scrollRef}
-            className="flex gap-4 sm:gap-6 lg:gap-8 overflow-x-auto scroll-smooth pb-6 no-scrollbar"
+            className="flex gap-6 overflow-x-auto scroll-smooth pb-6 no-scrollbar"
           >
             {products.map((item) => (
               <div
                 key={item._id}
-                onClick={() => handleNavigate(item._id)}
-                className="cursor-pointer min-w-[220px] sm:min-w-[250px] lg:min-w-[280px] max-w-[220px] sm:max-w-[250px] lg:max-w-[280px] bg-white rounded-3xl border border-sky-100 shadow-md p-4 sm:p-5 lg:p-6 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 flex-shrink-0"
+                onClick={() => navigate(`/products/${item._id}`)}
+                className="cursor-pointer min-w-[260px] bg-white rounded-3xl border shadow-md p-5 hover:shadow-2xl hover:-translate-y-2 transition"
               >
                 {/* Badge */}
                 {item.specialCategory && (
-                  <span className="inline-block mb-4 text-[10px] sm:text-xs font-semibold px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-400 to-sky-500 text-white shadow-sm">
+                  <span className="inline-block mb-4 text-xs font-semibold px-3 py-1 rounded-full bg-gradient-to-r from-emerald-400 to-sky-500 text-white">
                     {item.specialCategory}
                   </span>
                 )}
 
                 {/* Image */}
-                <div className="flex items-center justify-center mb-4 sm:mb-6">
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 lg:w-36 lg:h-36 rounded-3xl bg-sky-50 overflow-hidden flex items-center justify-center">
+                <div className="flex justify-center mb-5">
+                  <div className="w-32 h-32 bg-sky-50 rounded-3xl flex items-center justify-center">
                     <img
                       src={`http://localhost:4000${item.image}`}
                       alt={item.name}
-                      className="w-full h-full object-contain p-3"
-                      onError={(e) =>
-                        (e.target.src =
-                          "https://via.placeholder.com/200?text=No+Image")
-                      }
+                      className="object-contain p-4"
                     />
                   </div>
                 </div>
 
                 {/* Name */}
-                <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-sky-900 mb-2 line-clamp-2">
+                <h3 className="text-base font-semibold text-sky-900 mb-2 line-clamp-2">
                   {item.name}
                 </h3>
 
                 {/* Price */}
-                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-sky-900 mb-4">
+                <p className="text-xl font-bold text-sky-900 mb-4">
                   ₹{item.price}
                 </p>
 
                 {/* CTA */}
-                {item.prescriptionRequired ? (
-  <button
-    onClick={(e) => {
-      e.stopPropagation();
-      navigate(`/upload-prescription?medicineId=${item._id}`);
-    }}
-    className="w-full flex items-center justify-center gap-2 py-2 sm:py-2.5 lg:py-3 rounded-2xl text-xs sm:text-sm font-semibold bg-amber-100 text-amber-800 hover:bg-amber-200 transition shadow-md"
-  >
-    📄 Upload Prescription
-  </button>
-) : (
+                {item.stock === 0 ? (
+                  <button
+                    disabled
+                    className="w-full py-3 rounded-2xl text-sm font-semibold bg-red-100 text-red-700 cursor-not-allowed"
+                  >
+                    ❌ Out of Stock
+                  </button>
+                ) : item.prescriptionRequired ? (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(
+                        `/upload-prescription?medicineId=${item._id}`
+                      );
+                    }}
+                    className="w-full py-3 rounded-2xl text-sm font-semibold bg-amber-100 text-amber-800 hover:bg-amber-200"
+                  >
+                    📄 Upload Prescription
+                  </button>
+                ) : (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       handleAddToCart(item._id);
                     }}
                     disabled={adding === item._id}
-                    className={`w-full flex items-center justify-center gap-2 py-2 sm:py-2.5 lg:py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-300 shadow-md ${
+                    className={`w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold transition ${
                       adding === item._id
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-gradient-to-r from-sky-600 to-sky-500 text-white hover:from-sky-700 hover:to-sky-600"
@@ -168,10 +177,10 @@ const FeaturedMedicines = () => {
             ))}
           </div>
 
-          {/* Right Scroll Button */}
+          {/* Right */}
           <button
             onClick={scrollRight}
-            className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-md shadow-xl rounded-full w-10 h-10 lg:w-11 lg:h-11 items-center justify-center hover:scale-110 hover:bg-sky-100 transition"
+            className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white shadow-xl rounded-full w-10 h-10 items-center justify-center hover:scale-110 transition"
           >
             <MoveRightIcon size={18} />
           </button>

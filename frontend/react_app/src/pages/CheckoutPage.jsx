@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../context/CartContext";
 
 export default function CheckoutPage() {
   const [cartItems, setCartItems] = useState([]);
   const [addresses, setAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [placingOrder, setPlacingOrder] = useState(false);
 
   const navigate = useNavigate();
-  const { clearCart } = useCart();
 
+  /* =======================
+     FETCH CART & ADDRESSES
+  ======================= */
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -35,6 +37,9 @@ export default function CheckoutPage() {
     fetchData();
   }, []);
 
+  /* =======================
+     LOADING STATE
+  ======================= */
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen text-xl font-semibold text-gray-600">
@@ -43,11 +48,17 @@ export default function CheckoutPage() {
     );
   }
 
+  /* =======================
+     TOTAL CALCULATION (UI)
+  ======================= */
   const total = cartItems.reduce(
     (acc, item) => acc + item.product.price * item.quantity,
     0
   );
 
+  /* =======================
+     PLACE ORDER
+  ======================= */
   const placeOrderHandler = async () => {
     if (!selectedAddress) {
       alert("Please select a delivery address");
@@ -55,17 +66,14 @@ export default function CheckoutPage() {
     }
 
     try {
-      // 1️⃣ Create order in backend
+      setPlacingOrder(true);
+
       const res = await api.post("/orders", {
         address: selectedAddress,
       });
 
       const order = res.data.order;
 
-      // 2️⃣ Clear cart AFTER order is saved
-      await clearCart();
-
-      // 3️⃣ Navigate to success page
       navigate("/order-success", {
         state: {
           orderId: order._id,
@@ -74,15 +82,19 @@ export default function CheckoutPage() {
         },
       });
     } catch (error) {
-      console.error("Order placement failed", error);
-      alert("Failed to place order. Try again.");
+      alert(
+        error.response?.data?.message ||
+          "Failed to place order. Try again."
+      );
+    } finally {
+      setPlacingOrder(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4">
       <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
-        {/* LEFT - CART ITEMS */}
+        {/* ================= LEFT: CART ITEMS ================= */}
         <div className="md:col-span-2 bg-white rounded-2xl shadow-xl p-8">
           <h2 className="text-3xl font-bold mb-8 text-gray-800">
             🛒 Your Cart
@@ -126,7 +138,7 @@ export default function CheckoutPage() {
           )}
         </div>
 
-        {/* RIGHT - SUMMARY */}
+        {/* ================= RIGHT: SUMMARY ================= */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 h-fit sticky top-10">
           <h3 className="text-2xl font-bold mb-6">Order Summary</h3>
 
@@ -176,12 +188,18 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Place Order */}
+          {/* Place Order Button */}
           <button
+            disabled={placingOrder || cartItems.length === 0}
             onClick={placeOrderHandler}
-            className="mt-6 w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-2xl text-lg font-semibold"
+            className={`mt-6 w-full py-3 rounded-2xl text-lg font-semibold
+              ${
+                placingOrder
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-emerald-600 hover:bg-emerald-700 text-white"
+              }`}
           >
-            Place Order ✅
+            {placingOrder ? "Placing Order..." : "Place Order ✅"}
           </button>
         </div>
       </div>

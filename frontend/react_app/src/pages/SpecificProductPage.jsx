@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, ShoppingCart } from "lucide-react";
+import { ChevronLeft, ShoppingCart, FileText } from "lucide-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
 import FullMenu from "./FullMenu";
@@ -17,14 +17,15 @@ const SpecificProductPage = () => {
   const navigate = useNavigate();
   const { incrementCart } = useCart();
 
-  // 🔹 Fetch Product
+  /* =======================
+     FETCH PRODUCT
+  ======================= */
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const res = await api.get(`/products/${id}`);
         setProduct(res.data.data || res.data);
       } catch (error) {
-        console.error("Error fetching product:", error);
         setProduct(null);
       } finally {
         setLoading(false);
@@ -34,7 +35,9 @@ const SpecificProductPage = () => {
     fetchProduct();
   }, [id]);
 
-  // 🔹 Quantity Handlers
+  /* =======================
+     QUANTITY HANDLERS
+  ======================= */
   const increaseQty = () => {
     if (product?.stock && quantity < product.stock) {
       setQuantity((prev) => prev + 1);
@@ -47,27 +50,34 @@ const SpecificProductPage = () => {
     }
   };
 
-  // 🔹 Add To Cart
+  /* =======================
+     ADD TO CART
+  ======================= */
   const handleAddToCart = async () => {
+    if (product.prescriptionRequired) {
+      navigate(`/upload-prescription?medicineId=${product._id}`);
+      return;
+    }
+
     try {
       setAdding(true);
-
       await api.post("/cart/add", {
         productId: product._id,
-        quantity: quantity,
+        quantity,
       });
-
       toast.success("Added to cart!");
       incrementCart(1);
       navigate("/cart");
-    } catch (error) {
+    } catch {
       toast.error("Failed to add to cart");
     } finally {
       setAdding(false);
     }
   };
 
-  // 🔹 Loading State
+  /* =======================
+     STATES
+  ======================= */
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center text-sky-700 text-lg font-semibold">
@@ -76,7 +86,6 @@ const SpecificProductPage = () => {
     );
   }
 
-  // 🔹 Not Found
   if (!product) {
     return (
       <div className="h-screen flex items-center justify-center text-red-500 font-semibold">
@@ -88,87 +97,66 @@ const SpecificProductPage = () => {
   return (
     <section className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-sky-100 py-10 px-6">
       <div className="max-w-7xl mx-auto">
-        {/* 🔙 Breadcrumb/Back */}
+        {/* Back */}
         <button
           onClick={() => navigate(-1)}
-          className="group flex items-center text-slate-500 hover:text-sky-600 transition-colors mb-8"
+          className="flex items-center text-slate-500 hover:text-sky-600 mb-8"
         >
-          <ChevronLeft
-            size={20}
-            className="group-hover:-translate-x-1 transition-transform"
-          />
+          <ChevronLeft size={20} />
           <span className="font-medium">Back to Products</span>
         </button>
+
         <div className="grid lg:grid-cols-2 gap-14 items-center">
-          {/* 🖼 IMAGE */}
-          <div className="relative flex justify-center">
-            {product?.specialCategory && (
-              <span className="absolute top-4 left-4 bg-gradient-to-r from-emerald-500 to-sky-600 text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">
+          {/* IMAGE */}
+          <div className="flex justify-center relative">
+            {product.specialCategory && (
+              <span className="absolute top-4 left-4 bg-gradient-to-r from-emerald-500 to-sky-600 text-white text-xs font-semibold px-4 py-1.5 rounded-full">
                 {product.specialCategory}
               </span>
             )}
 
-            <div className="w-80 h-80 sm:w-[420px] sm:h-[420px] bg-white rounded-3xl shadow-xl border border-gray-100 p-10 flex items-center justify-center hover:scale-105 hover:shadow-2xl transition duration-500">
+            <div className="w-80 h-80 sm:w-[420px] sm:h-[420px] bg-white rounded-3xl shadow-xl p-10 flex items-center justify-center">
               <img
-                src={`http://localhost:4000${product?.image}`}
-                alt={product?.name}
+                src={`http://localhost:4000${product.image}`}
+                alt={product.name}
                 className="w-full h-full object-contain"
-                onError={(e) =>
-                  (e.target.src =
-                    "https://via.placeholder.com/400?text=No+Image")
-                }
               />
             </div>
           </div>
 
-          {/* 🧾 DETAILS */}
+          {/* DETAILS */}
           <div className="space-y-6">
-            {/* Name */}
-            <h1 className="text-4xl lg:text-5xl font-extrabold text-sky-900 tracking-tight">
-              {product?.name}
+            <h1 className="text-4xl font-extrabold text-sky-900">
+              {product.name}
             </h1>
 
-            {/* Price */}
-            <div className="flex items-center gap-4">
-              <span className="text-3xl font-bold text-sky-800">
-                ₹{product?.price}
-              </span>
-              <span className="text-sm text-gray-400 line-through">
-                ₹{product?.price + 20}
-              </span>
-              <span className="bg-red-200 text-red-700 text-xs font-semibold px-2 py-1 rounded-md shadow-sm">
-                10% OFF
-              </span>
+            <div className="text-3xl font-bold text-sky-800">
+              ₹{product.price}
             </div>
 
-            {/* Description */}
-            <p className="text-gray-600 leading-relaxed max-w-lg">
-              {product?.description ||
-                "This medicine is used for treatment. Always consult a doctor before use."}
+            <p className="text-gray-600 max-w-lg">
+              {product.description ||
+                "Always consult a doctor before use."}
             </p>
 
-            {/* Stock */}
-            <div>
-              {product?.stock > 0 ? (
-                <span className="text-green-600 font-semibold flex items-center gap-2">
-                  ✔ {product.stock} In Stock
-                </span>
-              ) : (
-                <span className="text-red-500 font-semibold flex items-center gap-2">
-                  ✖ Out of Stock
-                </span>
-              )}
-            </div>
+            {/* STOCK */}
+            {product.stock > 0 ? (
+              <p className="text-green-600 font-semibold">
+                ✔ {product.stock} In Stock
+              </p>
+            ) : (
+              <p className="text-red-500 font-semibold">✖ Out of Stock</p>
+            )}
 
-            {/* Quantity */}
-            {product?.stock > 0 && (
+            {/* QUANTITY */}
+            {product.stock > 0 && !product.prescriptionRequired && (
               <div className="flex items-center gap-4">
-                <span className="font-medium text-gray-700">Quantity:</span>
-                <div className="flex items-center border rounded-xl overflow-hidden shadow-sm">
+                <span className="font-medium">Quantity:</span>
+                <div className="flex border rounded-xl">
                   <button
                     onClick={decreaseQty}
                     disabled={quantity === 1}
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
+                    className="px-4 py-2 bg-gray-100"
                   >
                     -
                   </button>
@@ -176,7 +164,7 @@ const SpecificProductPage = () => {
                   <button
                     onClick={increaseQty}
                     disabled={quantity === product.stock}
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
+                    className="px-4 py-2 bg-gray-100"
                   >
                     +
                   </button>
@@ -184,24 +172,36 @@ const SpecificProductPage = () => {
               </div>
             )}
 
-            {/* Buttons */}
+            {/* CTA */}
             <div className="flex flex-col sm:flex-row gap-4 pt-6">
-              <button
-                onClick={handleAddToCart}
-                disabled={adding || product?.stock === 0}
-                className={`flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-lg font-semibold shadow-xl transition-all duration-300 ${
-                  adding || product?.stock === 0
-                    ? "bg-gray-400 cursor-not-allowed text-white"
-                    : "bg-gradient-to-r from-sky-600 to-sky-500 text-white hover:scale-105"
-                }`}
-              >
-                <ShoppingCart size={20} />
-                {adding ? "Adding..." : "Add to Cart"}
-              </button>
-
-              <button className="px-8 py-4 rounded-2xl text-lg font-semibold border-2 border-sky-600 text-sky-600 hover:bg-sky-50 transition">
-                Buy Now
-              </button>
+              {product.stock === 0 ? (
+                <button
+                  disabled
+                  className="px-8 py-4 rounded-2xl bg-gray-400 text-white text-lg font-semibold cursor-not-allowed"
+                >
+                  ❌ Out of Stock
+                </button>
+              ) : product.prescriptionRequired ? (
+                <button
+                  onClick={() =>
+                    navigate(
+                      `/upload-prescription?medicineId=${product._id}`
+                    )
+                  }
+                  className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-amber-100 text-amber-800 text-lg font-semibold hover:bg-amber-200"
+                >
+                  <FileText size={20} /> Upload Prescription
+                </button>
+              ) : (
+                <button
+                  onClick={handleAddToCart}
+                  disabled={adding}
+                  className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-sky-600 to-sky-500 text-white text-lg font-semibold hover:scale-105 transition"
+                >
+                  <ShoppingCart size={20} />
+                  {adding ? "Adding..." : "Add to Cart"}
+                </button>
+              )}
             </div>
           </div>
         </div>

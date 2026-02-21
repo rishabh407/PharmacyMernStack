@@ -10,10 +10,11 @@ const SignupPage = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "",
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -23,30 +24,34 @@ const SignupPage = () => {
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    // Call your register API here
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Password is incorrect 💊", {
-        style: {
-          border: "1px solid #10b981",
-          padding: "16px",
-        },
-      });
-
+      toast.error("Passwords do not match");
       return;
     }
+
     try {
-      await api.post("/auth/register", formData);
-      toast.success("Account created successfully");
-      navigate("/");
+      setLoading(true);
+
+      await api.post("/auth/register", {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      toast.success("Account created successfully 🎉");
+      navigate("/login");
     } catch (error) {
       toast.error(error.response?.data?.message || "Signup failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-sky-50 to-emerald-50 px-4">
       <div className="bg-white shadow-xl rounded-3xl p-10 w-full max-w-md">
+        {/* Header */}
         <div className="flex flex-col items-center mb-6">
           <span className="text-4xl mb-2">💊</span>
           <h2 className="text-3xl font-extrabold text-sky-900">
@@ -58,7 +63,7 @@ const SignupPage = () => {
         </div>
 
         <form onSubmit={handleSignup} className="space-y-5">
-          {/* NAME  */}
+          {/* NAME */}
           <div>
             <label className="block mb-1 font-medium text-sky-900">
               Full Name
@@ -70,13 +75,15 @@ const SignupPage = () => {
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-sky-200 rounded-2xl focus:ring-2 focus:ring-sky-400 focus:border-sky-400 outline-none text-sm transition"
+              className="w-full px-4 py-3 border border-sky-200 rounded-2xl focus:ring-2 focus:ring-sky-400 outline-none text-sm"
             />
           </div>
 
-          {/* EMAIL  */}
+          {/* EMAIL */}
           <div>
-            <label className="block mb-1 font-medium text-sky-900">Email</label>
+            <label className="block mb-1 font-medium text-sky-900">
+              Email
+            </label>
             <input
               type="email"
               name="email"
@@ -84,7 +91,7 @@ const SignupPage = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-sky-200 rounded-2xl focus:ring-2 focus:ring-sky-400 focus:border-sky-400 outline-none text-sm transition"
+              className="w-full px-4 py-3 border border-sky-200 rounded-2xl focus:ring-2 focus:ring-sky-400 outline-none text-sm"
             />
           </div>
 
@@ -101,13 +108,12 @@ const SignupPage = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base
-                           focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:ring-2 focus:ring-indigo-200"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-sky-900"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -127,56 +133,34 @@ const SignupPage = () => {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base
-                           focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:ring-2 focus:ring-indigo-200"
               />
               <button
                 type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-sky-900"
+                onClick={() =>
+                  setShowConfirmPassword(!showConfirmPassword)
+                }
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
               >
-                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showConfirmPassword ? (
+                  <EyeOff size={16} />
+                ) : (
+                  <Eye size={16} />
+                )}
               </button>
             </div>
           </div>
 
-          {/* ROLE  */}
-          <div>
-            <label className="block mb-2 font-medium text-sky-900">
-              Select type
-            </label>
-
-            <div className="flex gap-4">
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, role: "customer" })}
-                className={`flex-1 py-3 rounded-2xl border text-sm font-semibold transition
-        ${
-          formData.role === "customer"
-            ? "bg-emerald-600 text-white border-emerald-600"
-            : "border-sky-200 text-sky-700 hover:bg-sky-50"
-        }`}
-              >
-                Customer
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, role: "admin" })}
-                className={`flex-1 py-3 rounded-2xl border text-sm font-semibold transition
-        ${
-          formData.role === "admin"
-            ? "bg-emerald-600 text-white border-emerald-600"
-            : "border-sky-200 text-sky-700 hover:bg-sky-50"
-        }`}
-              >
-                Admin
-              </button>
-            </div>
-          </div>
-
-          <button className="w-full bg-sky-700 hover:bg-sky-800 text-white py-3 rounded-2xl font-semibold shadow-md transition">
-            Sign Up
+          {/* SUBMIT */}
+          <button
+            disabled={loading}
+            className={`w-full py-3 rounded-2xl font-semibold transition ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-sky-700 hover:bg-sky-800 text-white"
+            }`}
+          >
+            {loading ? "Creating Account..." : "Sign Up"}
           </button>
         </form>
 

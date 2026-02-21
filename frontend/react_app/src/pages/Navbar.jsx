@@ -201,6 +201,20 @@ const Navbar = () => {
             label={`Cart (${cartCount})`}
             setMobileOpen={setMobileOpen}
           />
+          {!user && (
+            <>
+              <MobileLink
+                to="/login"
+                label="Login"
+                setMobileOpen={setMobileOpen}
+              />
+              <MobileLink
+                to="/register"
+                label="Register"
+                setMobileOpen={setMobileOpen}
+              />
+            </>
+          )}
 
           {/* NOT LOGGED IN */}
           {!user && (

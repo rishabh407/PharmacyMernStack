@@ -9,18 +9,18 @@ const AdminUsers = () => {
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
+  /* ================= FETCH USERS ================= */
   const fetchUsers = async () => {
     try {
       setLoading(true);
       const { data } = await api.get(
-        `/admin/users?search=${search}&page=${page}`,
+        `/admin/users?search=${search}&page=${page}`
       );
-
-      setUsers(data.users);
-      setPages(data.pages);
-      setLoading(false);
-    } catch (error) {
+      setUsers(data.users || []);
+      setPages(data.pages || 1);
+    } catch {
       toast.error("Failed to fetch users");
+    } finally {
       setLoading(false);
     }
   };
@@ -29,6 +29,7 @@ const AdminUsers = () => {
     fetchUsers();
   }, [search, page]);
 
+  /* ================= ACTIONS ================= */
   const updateRole = async (id, role) => {
     try {
       await api.put(`/admin/users/${id}`, { role });
@@ -50,8 +51,7 @@ const AdminUsers = () => {
   };
 
   const deleteUser = async (id) => {
-    if (!window.confirm("Are you sure to delete this user?")) return;
-
+    if (!window.confirm("Delete this user permanently?")) return;
     try {
       await api.delete(`/admin/users/${id}`);
       toast.success("User deleted");
@@ -62,114 +62,159 @@ const AdminUsers = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div className="p-4 sm:p-8">
+      {/* ================= HEADER ================= */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-5xl font-bold text-slate-800">
-            👥User Management
-          </h1>
-          <p className="text-slate-500 mt-3 text-lg">
-            Manage customers and administrators
+          <h1 className="text-2xl sm:text-3xl font-bold">👥 User Management</h1>
+          <p className="text-gray-500 text-sm sm:text-base">
+            Manage customers & admins
           </p>
         </div>
 
-        <div className="mt-4 md:mt-0">
-          <input
-            type="text"
-            placeholder="Search users..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-72 px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm"
-          />
-        </div>
+        <input
+          type="text"
+          placeholder="Search users..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full sm:w-72 px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500"
+        />
       </div>
 
-      {/* Table Card */}
-      <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-slate-100 text-slate-700 text-sm uppercase tracking-wider">
+      {/* ================= MOBILE VIEW ================= */}
+      <div className="block lg:hidden space-y-4">
+        {loading ? (
+          <p className="text-center text-gray-500">Loading users...</p>
+        ) : users.length === 0 ? (
+          <p className="text-center text-gray-500">No users found</p>
+        ) : (
+          users.map((u) => (
+            <div
+              key={u._id}
+              className="bg-white rounded-xl shadow p-4 space-y-3"
+            >
+              <div>
+                <p className="font-semibold">{u.name}</p>
+                <p className="text-xs text-gray-500">{u.email}</p>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Role</span>
+                <select
+                  value={u.role}
+                  onChange={(e) => updateRole(u._id, e.target.value)}
+                  className="border rounded px-2 py-1 text-sm"
+                >
+                  <option value="customer">Customer</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              <span
+                className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                  u.isBlocked
+                    ? "bg-red-100 text-red-600"
+                    : "bg-emerald-100 text-emerald-600"
+                }`}
+              >
+                {u.isBlocked ? "Blocked" : "Active"}
+              </span>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => toggleBlock(u._id)}
+                  className={`flex-1 py-2 rounded text-xs text-white ${
+                    u.isBlocked ? "bg-emerald-600" : "bg-yellow-500"
+                  }`}
+                >
+                  {u.isBlocked ? "Unblock" : "Block"}
+                </button>
+
+                <button
+                  onClick={() => deleteUser(u._id)}
+                  className="flex-1 py-2 rounded text-xs bg-red-600 text-white"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* ================= DESKTOP TABLE ================= */}
+      <div className="hidden lg:block bg-white rounded-xl shadow overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-100">
             <tr>
-              <th className="px-6 py-4">User</th>
-              <th className="px-6 py-4">Email</th>
-              <th className="px-6 py-4">Role</th>
-              <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4">Joined</th>
-              <th className="px-6 py-4 text-center">Actions</th>
+              <th className="p-4 text-left">User</th>
+              <th className="p-4">Email</th>
+              <th className="p-4">Role</th>
+              <th className="p-4">Status</th>
+              <th className="p-4">Joined</th>
+              <th className="p-4 text-center">Actions</th>
             </tr>
           </thead>
 
-          <tbody className="divide-y">
+          <tbody>
             {loading ? (
               <tr>
-                <td colSpan="6" className="text-center py-10 text-slate-500">
+                <td colSpan="6" className="p-6 text-center text-gray-500">
                   Loading users...
                 </td>
               </tr>
             ) : users.length === 0 ? (
               <tr>
-                <td colSpan="6" className="text-center py-10 text-slate-500">
+                <td colSpan="6" className="p-6 text-center text-gray-500">
                   No users found
                 </td>
               </tr>
             ) : (
-              users.map((user) => (
-                <tr
-                  key={user._id}
-                  className="hover:bg-slate-50 transition duration-200"
-                >
-                  <td className="px-6 py-4 font-semibold text-slate-800">
-                    {user.name}
-                  </td>
+              users.map((u) => (
+                <tr key={u._id} className="border-t hover:bg-gray-50">
+                  <td className="p-4 font-medium">{u.name}</td>
+                  <td className="p-4">{u.email}</td>
 
-                  <td className="px-6 py-4 text-slate-600">{user.email}</td>
-
-                  {/* Role */}
-                  <td className="px-6 py-4">
+                  <td className="p-4">
                     <select
-                      value={user.role}
-                      onChange={(e) => updateRole(user._id, e.target.value)}
-                      className="px-3 py-1 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 text-sm"
+                      value={u.role}
+                      onChange={(e) => updateRole(u._id, e.target.value)}
+                      className="border rounded px-2 py-1"
                     >
                       <option value="customer">Customer</option>
                       <option value="admin">Admin</option>
                     </select>
                   </td>
 
-                  {/* Status */}
-                  <td className="px-6 py-4">
+                  <td className="p-4">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        user.isBlocked
+                        u.isBlocked
                           ? "bg-red-100 text-red-600"
                           : "bg-emerald-100 text-emerald-600"
                       }`}
                     >
-                      {user.isBlocked ? "Blocked" : "Active"}
+                      {u.isBlocked ? "Blocked" : "Active"}
                     </span>
                   </td>
 
-                  {/* Date */}
-                  <td className="px-6 py-4 text-slate-500 text-sm">
-                    {new Date(user.createdAt).toLocaleDateString()}
+                  <td className="p-4 text-gray-500">
+                    {new Date(u.createdAt).toLocaleDateString()}
                   </td>
 
-                  {/* Actions */}
-                  <td className="px-6 py-4 flex justify-center gap-3">
+                  <td className="p-4 flex justify-center gap-2">
                     <button
-                      onClick={() => toggleBlock(user._id)}
-                      className={`px-4 py-1.5 text-xs rounded-lg font-medium transition ${
-                        user.isBlocked
-                          ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                          : "bg-yellow-500 hover:bg-yellow-600 text-white"
+                      onClick={() => toggleBlock(u._id)}
+                      className={`px-3 py-1 rounded text-xs text-white ${
+                        u.isBlocked ? "bg-emerald-600" : "bg-yellow-500"
                       }`}
                     >
-                      {user.isBlocked ? "Unblock" : "Block"}
+                      {u.isBlocked ? "Unblock" : "Block"}
                     </button>
 
                     <button
-                      onClick={() => deleteUser(user._id)}
-                      className="px-4 py-1.5 text-xs rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition"
+                      onClick={() => deleteUser(u._id)}
+                      className="px-3 py-1 rounded text-xs bg-red-600 text-white"
                     >
                       Delete
                     </button>
@@ -181,16 +226,16 @@ const AdminUsers = () => {
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-center mt-8 gap-3">
+      {/* ================= PAGINATION ================= */}
+      <div className="flex justify-center mt-6 gap-2 flex-wrap">
         {[...Array(pages).keys()].map((x) => (
           <button
             key={x + 1}
             onClick={() => setPage(x + 1)}
-            className={`w-10 h-10 rounded-xl text-sm font-semibold transition ${
+            className={`w-9 h-9 rounded text-sm font-semibold ${
               page === x + 1
-                ? "bg-blue-600 text-white shadow-md"
-                : "bg-white border border-slate-300 hover:bg-slate-100"
+                ? "bg-blue-600 text-white"
+                : "bg-white border hover:bg-gray-100"
             }`}
           >
             {x + 1}

@@ -32,8 +32,6 @@ import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminProducts from "./pages/Admin/AdminProducts";
 import AdminOrders from "./pages/Admin/AdminOrders";
 import AdminUsers from "./pages/Admin/AdminUsers";
-import AdminReports from "./pages/Admin/AdminReports";
-import AdminSettings from "./pages/Admin/AdminSettings";
 
 /* ================= ADMIN ================= */
 
@@ -98,8 +96,6 @@ const App = () => {
               <Route path="orders" element={<AdminOrders />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="prescriptions" element={<AdminPrescriptions />} />
-              <Route path="reports" element={<AdminReports />} />
-              <Route path="settings" element={<AdminSettings />} />
             </Route>
           </Route>
         </Routes>

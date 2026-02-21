@@ -1,4 +1,3 @@
-// models/Order.js
 import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
@@ -31,11 +30,15 @@ const orderSchema = new mongoose.Schema(
       pincode: String,
     },
 
-    totalAmount: Number,
+    totalAmount: {
+      type: Number,
+      required: true,
+    },
 
     status: {
       type: String,
-      default: "PLACED",
+      enum: ["placed", "confirmed", "shipped", "delivered", "cancelled"],
+      default: "placed",
     },
   },
   { timestamps: true }

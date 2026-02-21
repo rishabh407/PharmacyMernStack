@@ -10,75 +10,84 @@ const router = express.Router();
 /* ==========================
    📊 Admin Dashboard Stats
 ========================== */
+/* ==========================
+   📊 Admin Dashboard Stats
+========================== */
 router.get("/stats", protect, adminOnly, async (req, res) => {
   try {
-    /* ======================
-       BASIC COUNTS
-    ====================== */
-    const totalUsers = await User.countDocuments();
-    const totalOrders = await Order.countDocuments();
+    const { month, year } = req.query;
 
-    /* ======================
-       💰 TOTAL REVENUE
-    ====================== */
-    const revenueData = await Order.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalRevenue: { $sum: "$totalAmount" },
-        },
-      },
-    ]);
-
-    const totalRevenue = revenueData[0]?.totalRevenue || 0;
-
-    /* ======================
-       📅 MONTHLY REVENUE
-    ====================== */
-    const monthlyRevenueData = await Order.aggregate([
-      {
-        $group: {
-          _id: { $month: "$createdAt" },
-          revenue: { $sum: "$totalAmount" },
-        },
-      },
-      { $sort: { _id: 1 } },
-    ]);
+    const selectedYear = year ? Number(year) : new Date().getFullYear();
 
     const monthNames = [
-      "",
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ];
 
-    const monthlyRevenue = {};
+    const monthIndex =
+      month && monthNames.includes(month)
+        ? monthNames.indexOf(month)
+        : null;
 
-    monthlyRevenueData.forEach((item) => {
-      monthlyRevenue[monthNames[item._id]] = item.revenue;
+    /* ======================
+       DATE FILTER
+    ====================== */
+    let dateFilter = {};
+    if (monthIndex !== null) {
+      const start = new Date(selectedYear, monthIndex, 1);
+      const end = new Date(selectedYear, monthIndex + 1, 1);
+      dateFilter = { createdAt: { $gte: start, $lt: end } };
+    }
+
+    /* ======================
+       USERS (GLOBAL)
+    ====================== */
+    const totalUsers = await User.countDocuments();
+
+    /* ======================
+       ORDERS & REVENUE
+    ====================== */
+    const orders = await Order.find(dateFilter);
+
+    const totalOrders = orders.length;
+    const totalRevenue = orders.reduce(
+      (sum, o) => sum + o.totalAmount,
+      0
+    );
+
+    /* ======================
+       MONTHLY REVENUE (CHART)
+    ====================== */
+    const allOrders = await Order.find({
+      createdAt: {
+        $gte: new Date(selectedYear, 0, 1),
+        $lt: new Date(selectedYear + 1, 0, 1),
+      },
+    });
+
+    const monthlyRevenue = {};
+    monthNames.forEach((m) => (monthlyRevenue[m] = 0));
+
+    allOrders.forEach((o) => {
+      const m = monthNames[new Date(o.createdAt).getMonth()];
+      monthlyRevenue[m] += o.totalAmount;
     });
 
     /* ======================
-       📑 PRESCRIPTION STATS
+       PRESCRIPTIONS
     ====================== */
-    const totalPrescriptions = await Prescription.countDocuments();
+    const prescriptionFilter = monthIndex !== null ? dateFilter : {};
+
+    const totalPrescriptions = await Prescription.countDocuments(
+      prescriptionFilter
+    );
     const pendingPrescriptions = await Prescription.countDocuments({
+      ...prescriptionFilter,
       status: "pending",
     });
     const approvedPrescriptions = await Prescription.countDocuments({
+      ...prescriptionFilter,
       status: "approved",
-    });
-    const rejectedPrescriptions = await Prescription.countDocuments({
-      status: "rejected",
     });
 
     res.json({
@@ -90,7 +99,6 @@ router.get("/stats", protect, adminOnly, async (req, res) => {
         totalPrescriptions,
         pendingPrescriptions,
         approvedPrescriptions,
-        rejectedPrescriptions,
       },
     });
   } catch (error) {

@@ -12,6 +12,7 @@ const AdminProducts = () => {
   const [loading, setLoading] = useState(false);
   const [updatingId, setUpdatingId] = useState(null);
 
+  /* ================= FETCH PRODUCTS ================= */
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -35,93 +36,98 @@ const AdminProducts = () => {
     fetchProducts();
   }, [search, category, filter]);
 
+  /* ================= LOAD CATEGORIES ================= */
   useEffect(() => {
-    const fetchCategories = async () => {
+    const loadCategories = async () => {
       const res = await api.get("/admin/products");
-      const products = res.data.data || [];
-      const uniqueCategories = [
-        ...new Set(products.map((p) => p.specialCategory).filter(Boolean)),
+      const unique = [
+        ...new Set(
+          (res.data.data || [])
+            .map((p) => p.specialCategory)
+            .filter(Boolean)
+        ),
       ];
-      setCategories(uniqueCategories);
+      setCategories(unique);
     };
-    fetchCategories();
+    loadCategories();
   }, []);
 
-  const updateStock = async (productId, stock) => {
+  /* ================= ACTIONS ================= */
+  const updateStock = async (id, stock) => {
     if (stock < 0) return;
     try {
-      setUpdatingId(productId);
-      await api.patch(`/admin/products/${productId}/stock`, { stock });
+      setUpdatingId(id);
+      await api.patch(`/admin/products/${id}/stock`, { stock });
       toast.success("Stock updated");
       fetchProducts();
     } catch {
-      toast.error("Failed to update stock");
+      toast.error("Stock update failed");
     } finally {
       setUpdatingId(null);
     }
   };
 
-  const toggleStatus = async (productId, isActive) => {
+  const toggleStatus = async (id, isActive) => {
     try {
-      await api.patch(`/admin/products/${productId}/status`, {
+      await api.patch(`/admin/products/${id}/status`, {
         isActive: !isActive,
       });
       toast.success("Status updated");
       fetchProducts();
     } catch {
-      toast.error("Failed to update status");
+      toast.error("Status update failed");
     }
   };
 
   const isExpired = (date) => new Date(date) < new Date();
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen text-xl font-semibold">
+      <div className="flex items-center justify-center h-64 text-lg font-semibold">
         Loading products...
       </div>
     );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200 p-10">
+    <div className="space-y-8">
       {/* ================= HEADER ================= */}
-      <div className="mb-10">
-        <h1 className="text-5xl font-bold text-gray-800">
-          💊 Inventory Management
+      <div>
+        <h1 className="text-3xl md:text-4xl font-bold">
+          Inventory Management
         </h1>
-        <p className="text-gray-500 mt-3 text-lg">
-          Manage medicines, stock levels & expiry
+        <p className="text-gray-500 mt-1">
+          Manage stock, expiry & availability
         </p>
       </div>
 
       {/* ================= FILTER BAR ================= */}
-      <div className="bg-white/80 backdrop-blur-xl border border-gray-200 p-6 rounded-3xl shadow-xl mb-10 flex flex-wrap gap-5 items-center">
-        <div className="relative">
-          <Search size={18} className="absolute top-3 left-3 text-gray-400" />
+      <div className="bg-white p-4 rounded-2xl shadow flex flex-col md:flex-row gap-4 items-center">
+        <div className="relative w-full md:w-64">
+          <Search className="absolute left-3 top-3 text-gray-400" size={18} />
           <input
-            type="text"
-            placeholder="Search medicine..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 pr-4 py-2 w-64 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none transition"
+            placeholder="Search medicine..."
+            className="pl-10 w-full px-4 py-2 border rounded-xl"
           />
         </div>
 
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none transition"
+          className="px-4 py-2 border rounded-xl"
         >
           <option value="all">All Categories</option>
-          {categories.map((cat) => (
-            <option key={cat}>{cat}</option>
+          {categories.map((c) => (
+            <option key={c}>{c}</option>
           ))}
         </select>
 
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none transition"
+          className="px-4 py-2 border rounded-xl"
         >
           <option value="all">All</option>
           <option value="lowStock">Low Stock</option>
@@ -129,113 +135,158 @@ const AdminProducts = () => {
         </select>
       </div>
 
-      {/* ================= PRODUCTS TABLE ================= */}
-      <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-200">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white sticky top-0">
-              <tr>
-                <th className="p-5 text-left">Medicine</th>
-                <th className="p-5">Category</th>
-                <th className="p-5">Stock</th>
-                <th className="p-5">Expiry</th>
-                <th className="p-5">Status</th>
-                <th className="p-5">Action</th>
-              </tr>
-            </thead>
+      {/* ======================================================
+            📱 MOBILE & TABLET VIEW (CARDS)
+      ====================================================== */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:hidden">
+        {products.map((p) => {
+          const expired = isExpired(p.expiryDate);
+          const lowStock = p.stock <= p.minStockLevel;
 
-            <tbody>
-              {products.map((p, index) => {
-                const lowStock = p.stock <= p.minStockLevel;
-                const expired = isExpired(p.expiryDate);
+          return (
+            <div
+              key={p._id}
+              className="bg-white p-4 rounded-2xl shadow space-y-3"
+            >
+              <div className="flex gap-3">
+                {p.image && (
+                  <img
+                    src={`http://localhost:4000${p.image}`}
+                    className="w-14 h-14 rounded-xl object-cover"
+                  />
+                )}
+                <div>
+                  <p className="font-semibold">{p.name}</p>
+                  <p className="text-xs text-gray-500">
+                    {p.specialCategory}
+                  </p>
+                </div>
+              </div>
 
-                return (
-                  <tr
-                    key={p._id}
-                    className={`border-t transition duration-200 hover:bg-blue-50 ${
-                      index % 2 === 0 ? "bg-white" : "bg-slate-50"
-                    }`}
-                  >
-                    <td className="p-5 flex items-center gap-4">
-                      {p.image && (
-                        <img
-                          src={`http://localhost:4000${p.image}`}
-                          alt={p.name}
-                          className="w-12 h-12 rounded-xl object-cover shadow-md "
-                        />
-                      )}
-                      <div>
-                        <p className="font-semibold text-gray-800 text-base">
-                          {p.name}
-                        </p>
-                        {lowStock && (
-                          <span className="text-xs text-red-600 font-bold">
-                            ⚠ Low Stock
-                          </span>
-                        )}
-                      </div>
-                    </td>
+              <div className="flex flex-wrap gap-2">
+                {lowStock && (
+                  <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">
+                    Low Stock
+                  </span>
+                )}
+                {expired && (
+                  <span className="text-xs bg-red-200 text-red-800 px-2 py-1 rounded-full">
+                    Expired
+                  </span>
+                )}
+                <span
+                  className={`text-xs px-2 py-1 rounded-full ${
+                    p.isActive
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  {p.isActive ? "Active" : "Inactive"}
+                </span>
+              </div>
 
-                    <td className="p-5 text-gray-600 font-medium">
-                      {p.specialCategory}
-                    </td>
+              <input
+                type="number"
+                defaultValue={p.stock}
+                disabled={!p.isActive}
+                onBlur={(e) =>
+                  updateStock(p._id, Number(e.target.value))
+                }
+                className="w-full px-3 py-2 border rounded-xl"
+              />
 
-                    <td className="p-5">
-                      <input
-                        type="number"
-                        min="0"
-                        defaultValue={p.stock}
-                        disabled={!p.isActive || updatingId === p._id}
-                        onBlur={(e) =>
-                          updateStock(p._id, Number(e.target.value))
-                        }
-                        className="w-24 px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none transition shadow-sm"
-                      />
-                    </td>
-
-                    <td className="p-5">
-                      <span
-                        className={`font-semibold ${
-                          expired ? "text-red-600" : "text-gray-700"
-                        }`}
-                      >
-                        {new Date(p.expiryDate).toLocaleDateString()}
-                      </span>
-                    </td>
-
-                    <td className="p-5">
-                      <span
-                        className={`px-4 py-1.5 rounded-full text-xs font-semibold shadow-sm ${
-                          p.isActive
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-gray-200 text-gray-600"
-                        }`}
-                      >
-                        {p.isActive ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-
-                    <td className="p-5">
-                      <button
-                        onClick={() => toggleStatus(p._id, p.isActive)}
-                        className="px-4 py-2 rounded-xl text-xs bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:scale-105 hover:shadow-lg transition-all duration-200"
-                      >
-                        {p.isActive ? "Disable" : "Enable"}
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {!loading && products.length === 0 && (
-          <p className="p-10 text-center text-gray-500 text-lg">
-            No products found
-          </p>
-        )}
+              <button
+                onClick={() => toggleStatus(p._id, p.isActive)}
+                className="w-full py-2 bg-blue-600 text-white rounded-xl"
+              >
+                {p.isActive ? "Disable" : "Enable"}
+              </button>
+            </div>
+          );
+        })}
       </div>
+
+      {/* ======================================================
+            💻 DESKTOP VIEW (TABLE)
+      ====================================================== */}
+      <div className="hidden lg:block bg-white rounded-2xl shadow overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-100">
+            <tr>
+              <th className="p-4 text-left">Medicine</th>
+              <th className="p-4">Category</th>
+              <th className="p-4">Stock</th>
+              <th className="p-4">Expiry</th>
+              <th className="p-4">Status</th>
+              <th className="p-4">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((p) => {
+              const expired = isExpired(p.expiryDate);
+              const lowStock = p.stock <= p.minStockLevel;
+
+              return (
+                <tr key={p._id} className="border-t">
+                  <td className="p-4 font-medium">{p.name}</td>
+                  <td className="p-4">{p.specialCategory}</td>
+                  <td className="p-4">
+                    <input
+                      type="number"
+                      defaultValue={p.stock}
+                      disabled={!p.isActive}
+                      onBlur={(e) =>
+                        updateStock(p._id, Number(e.target.value))
+                      }
+                      className="w-20 px-2 py-1 border rounded"
+                    />
+                    {lowStock && (
+                      <div className="text-xs text-red-600 font-bold">
+                        Low
+                      </div>
+                    )}
+                  </td>
+                  <td className="p-4">
+                    {new Date(p.expiryDate).toLocaleDateString()}
+                    {expired && (
+                      <span className="ml-2 text-xs text-red-600">
+                        Expired
+                      </span>
+                    )}
+                  </td>
+                  <td className="p-4">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs ${
+                        p.isActive
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-gray-200 text-gray-600"
+                      }`}
+                    >
+                      {p.isActive ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    <button
+                      onClick={() =>
+                        toggleStatus(p._id, p.isActive)
+                      }
+                      className="px-3 py-1 bg-blue-600 text-white rounded text-xs"
+                    >
+                      {p.isActive ? "Disable" : "Enable"}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {!loading && products.length === 0 && (
+        <p className="text-center text-gray-500">
+          No products found
+        </p>
+      )}
     </div>
   );
 };

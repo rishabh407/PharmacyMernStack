@@ -15,6 +15,7 @@ import adminRoutes from "./src/routes/admin.routes.js";
 import cartRoutes from "./src/routes/cart.routes.js";
 import orderRoutes from "./src/routes/orderRoutes.js";
 import adminProductRoutes from "./src/routes/adminProductRoutes.js";
+import adminOrderRoutes from "./src/routes/adminOrderRoutes.js";
 
 dotenv.config();
 
@@ -51,6 +52,8 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin/products", adminProductRoutes);
 app.use("/api/admin/prescriptions", adminPrescriptionRoutes);
+app.use("/api/admin/orders", adminOrderRoutes);
+
 // Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

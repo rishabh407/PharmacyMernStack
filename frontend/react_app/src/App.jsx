@@ -63,7 +63,6 @@ const App = () => {
               path="/prescription-medicines"
               element={<PrescriptionPageMedicines />}
             />
-
             {/* User actions */}
             <Route
               path="/upload-prescription"

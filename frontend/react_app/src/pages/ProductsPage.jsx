@@ -226,8 +226,13 @@ useEffect(() => {
                   >
                     {/* Image */}
                     <div className="mb-4 w-full aspect-[4/3] rounded-2xl bg-gray-100 flex items-center justify-center">
-                      <img
+                      {/* <img
                         src={`http://localhost:4000${product.image}`}
+                        alt={product.name}
+                        className="w-full h-full object-contain p-3"
+                      /> */}
+                      <img
+                        src={product.image}
                         alt={product.name}
                         className="w-full h-full object-contain p-3"
                       />

@@ -1,3 +1,46 @@
+// import mongoose from "mongoose";
+
+// const prescriptionSchema = new mongoose.Schema(
+//   {
+//     user: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "User",
+//       required: true,
+//     },
+
+//     fileUrl: {
+//       type: String,
+//       required: true,
+//     },
+
+//     notes: {
+//       type: String,
+//     },
+//     medicine: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "Product",
+//       required: true,
+//     },
+//     status: {
+//       type: String,
+//       enum: ["pending", "approved", "rejected"],
+//       default: "pending",
+//     },
+
+//     reviewedBy: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "User",
+//     },
+
+//     reviewedAt: {
+//       type: Date,
+//     },
+//   },
+//   { timestamps: true },
+// );
+
+// export default mongoose.model("Prescription", prescriptionSchema);
+
 import mongoose from "mongoose";
 
 const prescriptionSchema = new mongoose.Schema(
@@ -8,19 +51,26 @@ const prescriptionSchema = new mongoose.Schema(
       required: true,
     },
 
+    medicine: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+
     fileUrl: {
-      type: String,
+      type: String, // Cloudinary secure_url
+      required: true,
+    },
+
+    filePublicId: {
+      type: String, // Cloudinary public_id
       required: true,
     },
 
     notes: {
       type: String,
     },
-    medicine: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Product",
-      required: true,
-    },
+
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
@@ -36,7 +86,7 @@ const prescriptionSchema = new mongoose.Schema(
       type: Date,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export default mongoose.model("Prescription", prescriptionSchema);

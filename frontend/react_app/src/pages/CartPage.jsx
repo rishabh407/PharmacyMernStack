@@ -105,8 +105,17 @@ const CartPage = () => {
                 >
                   {/* IMAGE */}
                   <div className="w-20 h-20 flex-shrink-0">
-                    <img
+                    {/* <img
                       src={`http://localhost:4000${item.product.image}`}
+                      alt={item.product.name}
+                      onClick={handleNavigate}
+                      className="w-full h-full object-contain rounded-xl cursor-pointer"
+                      onError={(e) =>
+                        (e.target.src =
+                          "https://via.placeholder.com/100?text=No+Image")
+                      } */}
+                    <img
+                      src={item.product.image}
                       alt={item.product.name}
                       onClick={handleNavigate}
                       className="w-full h-full object-contain rounded-xl cursor-pointer"

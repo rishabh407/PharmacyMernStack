@@ -169,8 +169,14 @@ useEffect(() => {
                   {/* Image */}
                   <div className="flex justify-center mb-4">
                     <div className="w-32 h-32 bg-sky-50 rounded-3xl flex items-center justify-center">
-                      <img
+                      {/* <img
                         src={`http://localhost:4000${item.image}`}
+                        alt={item.name}
+                        className="object-contain p-4"
+                      /> */}
+                      
+                        <img
+                        src={item.image}
                         alt={item.name}
                         className="object-contain p-4"
                       />

@@ -109,12 +109,17 @@ export default function CheckoutPage() {
                   className="flex items-center justify-between border-b pb-6"
                 >
                   <div className="flex items-center gap-5">
-                    <img
+                    {/* <img
                       src={
                         item.product.image
                           ? `http://localhost:4000${item.product.image}`
                           : "https://via.placeholder.com/80"
                       }
+                      alt={item.product.name}
+                      className="w-20 h-20 object-cover rounded-xl"
+                    /> */}
+                    <img
+                      src={item.product.image}
                       alt={item.product.name}
                       className="w-20 h-20 object-cover rounded-xl"
                     />
@@ -142,30 +147,40 @@ export default function CheckoutPage() {
           <h3 className="text-2xl font-bold mb-6">Order Summary</h3>
 
           {/* Address */}
-          <div className="mb-6">
-            <h4 className="font-semibold mb-3">📍 Delivery Address</h4>
+<div className="mb-6">
+  <h4 className="font-semibold mb-3">📍 Delivery Address</h4>
 
-            {addresses.map((addr) => (
-              <div
-                key={addr._id}
-                onClick={() => setSelectedAddress(addr)}
-                className={`cursor-pointer p-4 rounded-xl border mb-3 transition
-                  ${
-                    selectedAddress?._id === addr._id
-                      ? "border-emerald-600 bg-emerald-50"
-                      : "border-gray-300"
-                  }`}
-              >
-                <p className="font-semibold">{addr.fullName}</p>
-                <p className="text-sm text-gray-600">
-                  {addr.addressLine}, {addr.city}, {addr.state} - {addr.pincode}
-                </p>
-                {addr.phone && (
-                  <p className="text-sm text-gray-500">Phone: {addr.phone}</p>
-                )}
-              </div>
-            ))}
-          </div>
+  {addresses.length === 0 ? (
+    <div className="text-gray-500 text-sm bg-gray-50 border border-dashed border-gray-300 rounded-xl p-4 text-center">
+      🚫 No address saved yet.
+      <br />
+      <span className="text-xs text-gray-400">
+        Please add a delivery address to continue.
+      </span>
+    </div>
+  ) : (
+    addresses.map((addr) => (
+      <div
+        key={addr._id}
+        onClick={() => setSelectedAddress(addr)}
+        className={`cursor-pointer p-4 rounded-xl border mb-3 transition
+          ${
+            selectedAddress?._id === addr._id
+              ? "border-emerald-600 bg-emerald-50"
+              : "border-gray-300"
+          }`}
+      >
+        <p className="font-semibold">{addr.fullName}</p>
+        <p className="text-sm text-gray-600">
+          {addr.addressLine}, {addr.city}, {addr.state} - {addr.pincode}
+        </p>
+        {addr.phone && (
+          <p className="text-sm text-gray-500">Phone: {addr.phone}</p>
+        )}
+      </div>
+    ))
+  )}
+</div>
 
           {/* Totals */}
           <div className="space-y-3">

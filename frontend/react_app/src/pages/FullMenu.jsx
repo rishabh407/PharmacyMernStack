@@ -90,8 +90,17 @@ const FullMenu = () => {
 
                 {/* Image */}
                 <div className="mb-4 w-full aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100 flex items-center justify-center">
-                  <img
+                  {/* <img
                     src={`http://localhost:4000${product.image}`}
+                    alt={product.name}
+                    className="w-full h-full object-contain p-3 transition-transform duration-500 hover:scale-105"
+                    onError={(e) =>
+                      (e.target.src =
+                        "https://via.placeholder.com/400x300?text=No+Image")
+                    }
+                  /> */}
+                  <img
+                    src={product.image}
                     alt={product.name}
                     className="w-full h-full object-contain p-3 transition-transform duration-500 hover:scale-105"
                     onError={(e) =>

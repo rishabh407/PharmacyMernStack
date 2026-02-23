@@ -100,8 +100,13 @@ const MyPrescriptions = () => {
               >
                 {/* Medicine Info */}
                 <div className="flex items-center gap-4">
-                  <img
+                  {/* <img
                     src={`http://localhost:4000${p.medicine?.image}`}
+                    alt={p.medicine?.name}
+                    className="w-20 h-20 object-contain bg-gray-100 rounded-xl p-2"
+                  /> */}
+                  <img
+                    src={p.medicine?.image}
                     alt={p.medicine?.name}
                     className="w-20 h-20 object-contain bg-gray-100 rounded-xl p-2"
                   />

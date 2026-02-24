@@ -5,7 +5,7 @@ import {
   Clock,
   ShoppingCart,
   Upload,
-  Trash2
+  Trash2,
 } from "lucide-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
@@ -19,6 +19,7 @@ const MyPrescriptions = () => {
   const navigate = useNavigate();
   const { incrementCart } = useCart();
 
+  /* ================= FETCH ================= */
   const fetchMyPrescriptions = async () => {
     try {
       const res = await api.get("/prescriptions/my");
@@ -34,12 +35,12 @@ const MyPrescriptions = () => {
     fetchMyPrescriptions();
   }, []);
 
-  /* 🛒 Add to cart (approved only) */
+  /* ================= ADD TO CART ================= */
   const handleAddToCart = async (medicineId) => {
     try {
       await api.post("/cart/add", {
         productId: medicineId,
-        quantity: 1
+        quantity: 1,
       });
 
       toast.success("Medicine added to cart 🛒");
@@ -52,7 +53,7 @@ const MyPrescriptions = () => {
     }
   };
 
-  /* 🗑️ Delete prescription (pending / rejected only) */
+  /* ================= DELETE ================= */
   const handleDeletePrescription = async (id) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this prescription?"
@@ -63,7 +64,7 @@ const MyPrescriptions = () => {
     try {
       await api.delete(`/prescriptions/${id}`);
       toast.success("Prescription deleted");
-      fetchMyPrescriptions(); // refresh list
+      fetchMyPrescriptions();
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
@@ -72,6 +73,7 @@ const MyPrescriptions = () => {
     }
   };
 
+  /* ================= LOADING ================= */
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-sky-700">
@@ -80,6 +82,7 @@ const MyPrescriptions = () => {
     );
   }
 
+  /* ================= UI ================= */
   return (
     <div className="min-h-screen bg-sky-50 py-10 px-4">
       <div className="max-w-5xl mx-auto">
@@ -98,13 +101,8 @@ const MyPrescriptions = () => {
                 key={p._id}
                 className="bg-white rounded-2xl border border-sky-100 shadow-sm p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
               >
-                {/* Medicine Info */}
+                {/* ================= MEDICINE INFO ================= */}
                 <div className="flex items-center gap-4">
-                  {/* <img
-                    src={`http://localhost:4000${p.medicine?.image}`}
-                    alt={p.medicine?.name}
-                    className="w-20 h-20 object-contain bg-gray-100 rounded-xl p-2"
-                  /> */}
                   <img
                     src={p.medicine?.image}
                     alt={p.medicine?.name}
@@ -121,9 +119,9 @@ const MyPrescriptions = () => {
                   </div>
                 </div>
 
-                {/* Status + Actions */}
-                <div className="flex items-center gap-3 flex-wrap justify-end">
-                  {/* Pending */}
+                {/* ================= STATUS + ACTIONS ================= */}
+                <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3 flex-wrap justify-end">
+                  {/* PENDING */}
                   {p.status === "pending" && (
                     <>
                       <span className="flex items-center gap-1 text-amber-600 font-semibold">
@@ -142,7 +140,7 @@ const MyPrescriptions = () => {
                     </>
                   )}
 
-                  {/* Approved */}
+                  {/* APPROVED */}
                   {p.status === "approved" && (
                     <>
                       <span className="flex items-center gap-1 text-emerald-600 font-semibold">
@@ -161,12 +159,24 @@ const MyPrescriptions = () => {
                     </>
                   )}
 
-                  {/* Rejected */}
+                  {/* REJECTED */}
                   {p.status === "rejected" && (
                     <>
                       <span className="flex items-center gap-1 text-red-600 font-semibold">
                         <XCircle size={18} /> Rejected
                       </span>
+
+                      {/* ✅ ADMIN COMMENT */}
+                      {p.adminComment && (
+                        <div className="w-full sm:max-w-md bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-xl">
+                          <p className="font-semibold">
+                            Admin message:
+                          </p>
+                          <p className="italic break-words">
+                            {p.adminComment}
+                          </p>
+                        </div>
+                      )}
 
                       <button
                         onClick={() =>

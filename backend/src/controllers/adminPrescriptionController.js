@@ -57,6 +57,12 @@ export const rejectPrescription = async (req, res) => {
       return res.status(404).json({ message: "Prescription not found" });
     }
 
+    if (!req.body.comment) {
+      return res.status(400).json({
+        message: "Rejection reason is required",
+      });
+    }
+
     prescription.status = "rejected";
     prescription.reviewedBy = req.user._id;
     prescription.reviewedAt = new Date();

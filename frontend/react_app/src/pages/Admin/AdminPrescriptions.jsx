@@ -190,7 +190,7 @@ const AdminPrescriptions = () => {
                 <td className="p-4">
                   {p.fileUrl ? (
                     <a
-                      href={`http://localhost:4000${p.fileUrl}`}
+                      href={p.fileUrl}
                       target="_blank"
                       rel="noreferrer"
                       className="text-sky-600 underline"

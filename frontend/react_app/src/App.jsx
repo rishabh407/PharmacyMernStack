@@ -75,7 +75,7 @@ const App = () => {
             {/* Account */}
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/my-orders" element={<MyOrdersPage />} />
-            <Route path="/my-prescriptions" element={<MyPrescriptions />} />
+            <Route path="/my-prescriptions" element={<MyPrescriptions/>} />
             <Route path="/account/dashboard" element={<UserDashboard />} />
             <Route path="/account/addresses" element={<AddressPage />} />
 

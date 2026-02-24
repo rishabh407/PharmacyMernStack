@@ -109,15 +109,7 @@ const PrescriptionPageMedicines = () => {
                   >
                     {/* Image */}
                     <div className="mb-4 w-full aspect-[4/3] bg-gray-100 rounded-2xl flex items-center justify-center">
-                      {/* <img
-                        src={`http://localhost:4000${product.image}`}
-                        alt={product.name}
-                        className="w-full h-full object-contain p-3"
-                        onError={(e) =>
-                          (e.target.src =
-                            "https://via.placeholder.com/400x300?text=No+Image")
-                        }
-                      /> */}
+
                       <img
                         src={product.image}
                         alt={product.name}

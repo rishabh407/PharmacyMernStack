@@ -87,11 +87,6 @@ const MyOrdersPage = () => {
                         key={item._id}
                         className="flex items-center gap-3 bg-gray-50 rounded-xl p-3 flex-1"
                       >
-                        {/* <img
-                          src={`http://localhost:4000${item.image}`}
-                          alt={item.name}
-                          className="w-12 h-12 object-cover rounded-lg"
-                        /> */}
                         <img
                           src={item.image}
                           alt={item.name}

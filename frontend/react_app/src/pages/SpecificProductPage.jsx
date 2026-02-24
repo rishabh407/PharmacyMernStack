@@ -126,11 +126,7 @@ const SpecificProductPage = () => {
             )}
 
             <div className="w-full max-w-[360px] sm:max-w-[420px] aspect-square bg-white rounded-3xl shadow-xl p-6 sm:p-10 flex items-center justify-center">
-              {/* <img
-                src={`http://localhost:4000${product.image}`}
-                alt={product.name}
-                className="w-full h-full object-contain"
-              /> */}
+
               <img
                 src={product.image}
                 alt={product.name}

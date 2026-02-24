@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { UploadCloud, FileText, Pill } from "lucide-react";
+import { UploadCloud, FileText, Pill, Loader2 } from "lucide-react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import toast from "react-hot-toast";
@@ -9,12 +9,13 @@ const PrescriptionUploadPage = () => {
   const [notes, setNotes] = useState("");
   const [medicine, setMedicine] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const medicineId = searchParams.get("medicineId");
 
-  /* 🔴 BASIC SAFETY CHECK */
+  /* ================= SAFETY CHECK ================= */
   useEffect(() => {
     if (!medicineId) {
       toast.error("Invalid prescription request");
@@ -22,15 +23,13 @@ const PrescriptionUploadPage = () => {
     }
   }, [medicineId, navigate]);
 
-  /* 🔹 FETCH MEDICINE + CHECK EXISTING PRESCRIPTION */
+  /* ================= INIT ================= */
   useEffect(() => {
     const init = async () => {
       try {
-        // 1️⃣ Fetch medicine
         const medRes = await api.get(`/products/${medicineId}`);
         setMedicine(medRes.data.data);
 
-        // 2️⃣ Fetch user's prescriptions
         const presRes = await api.get("/prescriptions/my");
 
         const hasPending = presRes.data.data.some(
@@ -46,7 +45,7 @@ const PrescriptionUploadPage = () => {
           navigate("/my-prescriptions");
           return;
         }
-      } catch (error) {
+      } catch {
         toast.error("Failed to initialize prescription upload");
         navigate("/prescription-medicines");
       } finally {
@@ -57,10 +56,22 @@ const PrescriptionUploadPage = () => {
     if (medicineId) init();
   }, [medicineId, navigate]);
 
+  /* ================= FILE CHANGE ================= */
   const handleFileChange = (e) => {
-    setFile(e.target.files?.[0] || null);
+    const selectedFile = e.target.files?.[0];
+
+    if (!selectedFile) return;
+
+    // ✅ File size check (5MB)
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      toast.error("File size must be under 5MB");
+      return;
+    }
+
+    setFile(selectedFile);
   };
 
+  /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -70,6 +81,8 @@ const PrescriptionUploadPage = () => {
     }
 
     try {
+      setUploading(true);
+
       const formData = new FormData();
       formData.append("prescription", file);
       formData.append("notes", notes);
@@ -89,9 +102,12 @@ const PrescriptionUploadPage = () => {
         error?.response?.data?.message ||
           "Failed to upload prescription"
       );
+    } finally {
+      setUploading(false);
     }
   };
 
+  /* ================= LOADING ================= */
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-sky-700">
@@ -100,6 +116,7 @@ const PrescriptionUploadPage = () => {
     );
   }
 
+  /* ================= UI ================= */
   return (
     <div className="min-h-screen bg-sky-50 flex items-center justify-center py-10 px-4">
       <div className="bg-white rounded-2xl shadow-lg border border-sky-100 max-w-xl w-full p-8">
@@ -174,10 +191,11 @@ const PrescriptionUploadPage = () => {
 
           <button
             type="submit"
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-sm font-semibold shadow-sm transition disabled:bg-sky-300"
-            disabled={!file}
+            disabled={!file || uploading}
+            className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-sm font-semibold shadow-sm transition disabled:bg-gray-300"
           >
-            Submit Prescription
+            {uploading && <Loader2 className="animate-spin" size={18} />}
+            {uploading ? "Uploading..." : "Submit Prescription"}
           </button>
 
           <p className="text-[11px] text-sky-600 mt-2">
